@@ -11,9 +11,13 @@ import com.cabbooking.entities.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByUserId(Long id);
+    default Optional<User> findByUserId(Long id) {
+        return findById(id);
+    }
 
-    List<User> findAllUsers();
+    default List<User> findAllUsers() {
+        return findAll();
+    }
 
     default User saveUser(User user) {
         return save(user);
