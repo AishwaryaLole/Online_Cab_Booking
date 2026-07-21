@@ -1,5 +1,10 @@
 package com.cabbooking.services;
 
-public class AuthServices {
 
+import com.cabbooking.dto.RegisterRequest;
+
+public interface AuthServices {
+	
+	String register(RegisterRequest request);
 }
+
