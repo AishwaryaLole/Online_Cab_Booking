@@ -9,10 +9,8 @@ import com.cabbooking.dto.UserUpdateRequest;
 import com.cabbooking.entities.Driver;
 import com.cabbooking.entities.Ride;
 import com.cabbooking.entities.User;
+import com.cabbooking.enums.DriverStatus;
 
-/**
- * Service contract for admin workflows.
- */
 public interface IAdminService {
 
     Driver approveDriver(Long driverId);
@@ -36,6 +34,4 @@ public interface IAdminService {
     Map<String, Object> getRevenueReport();
 
     Map<String, Object> getDriverReport();
-
-    Map<String, Object> getUserReport();
 }
