@@ -11,7 +11,9 @@ import com.cabbooking.enums.PaymentStatus;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-    List<Payment> findAllPayments();
+    default List<Payment> findAllPayments() {
+        return findAll();
+    }
 
     List<Payment> findAllByPaymentStatus(PaymentStatus paymentStatus);
 }
