@@ -12,7 +12,9 @@ import com.cabbooking.enums.DriverStatus;
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Long> {
 
-    Optional<Driver> findByDriverId(Long id);
+    default Optional<Driver> findByDriverId(Long id) {
+        return findById(id);
+    }
 
     List<Driver> findAllByStatus(DriverStatus status);
 
