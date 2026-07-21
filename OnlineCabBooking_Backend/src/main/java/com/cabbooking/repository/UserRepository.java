@@ -1,13 +1,22 @@
 package com.cabbooking.repository;
 
+import java.util.List;
+
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.config.JpaRepositoryConfigExtension;
 import org.springframework.stereotype.Repository;
 
 import com.cabbooking.entities.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>  {
+	 Optional<User> findByUserId(Long userId);
 
+	    List<User> findAllUsers();
+
+	    User saveUser(User user);
+
+	    void deleteUser(Long userId);
 	
 }
