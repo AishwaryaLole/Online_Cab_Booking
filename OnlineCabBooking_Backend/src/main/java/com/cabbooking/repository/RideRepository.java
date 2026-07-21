@@ -12,11 +12,13 @@ import com.cabbooking.enums.RideStatus;
 @Repository
 public interface RideRepository extends JpaRepository<Ride, Long> {
 
-    Optional<Ride> findByRideId(Long rideId);
+    Optional<Ride> findByRideId(Long id);
 
     List<Ride> findAllRides();
 
     List<Ride> findAllByStatus(RideStatus status);
 
-    Ride saveRide(Ride ride);
+    default Ride saveRide(Ride ride) {
+        return save(ride);
+    }
 }

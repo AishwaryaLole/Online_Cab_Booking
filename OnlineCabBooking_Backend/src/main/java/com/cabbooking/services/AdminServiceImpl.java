@@ -17,7 +17,6 @@ import com.cabbooking.entities.User;
 import com.cabbooking.enums.DriverStatus;
 import com.cabbooking.enums.PaymentStatus;
 import com.cabbooking.enums.RideStatus;
-import com.cabbooking.enums.Role;
 import com.cabbooking.exception.BadRequestException;
 import com.cabbooking.exception.ResourceNotFoundException;
 import com.cabbooking.repository.DriverRepository;
@@ -26,18 +25,17 @@ import com.cabbooking.repository.RideRepository;
 import com.cabbooking.repository.UserRepository;
 
 @Service
-
 public class AdminServiceImpl implements IAdminService {
 
     private final DriverRepository driverRepository;
-    private final UserRepository userRepository ;
+    private final UserRepository userRepository;
     private final RideRepository rideRepository;
     private final PaymentRepository paymentRepository;
 
     public AdminServiceImpl(DriverRepository driverRepository,
-                        UserRepository userRepository,
-                        RideRepository rideRepository,
-                        PaymentRepository paymentRepository) {
+                            UserRepository userRepository,
+                            RideRepository rideRepository,
+                            PaymentRepository paymentRepository) {
         this.driverRepository = driverRepository;
         this.userRepository = userRepository;
         this.rideRepository = rideRepository;
@@ -218,56 +216,24 @@ public class AdminServiceImpl implements IAdminService {
     public Map<String, Object> getDriverReport() {
         List<Driver> drivers = driverRepository.findAll();
 
+        long totalDrivers = drivers.size();
         long approvedDrivers = drivers.stream()
                 .filter(driver -> driver.getStatus() == DriverStatus.APPROVED)
-                .count();
-        long pendingDrivers = drivers.stream()
-                .filter(driver -> driver.getStatus() == DriverStatus.PENDING)
                 .count();
         long blockedDrivers = drivers.stream()
                 .filter(driver -> driver.getStatus() == DriverStatus.BLOCKED)
                 .count();
 
         Map<String, Object> report = new LinkedHashMap<>();
-        report.put("totalDrivers", drivers.size());
+        report.put("totalDrivers", totalDrivers);
         report.put("approvedDrivers", approvedDrivers);
-        report.put("pendingDrivers", pendingDrivers);
         report.put("blockedDrivers", blockedDrivers);
 
         return report;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Map<String, Object> getUserReport() {
-        List<User> users = userRepository.findAllUsers();
-
-        long totalUsers = users.size();
-        long verifiedUsers = users.stream()
-                .filter(user -> Boolean.TRUE.equals(user.getIsVerified()))
-                .count();
-        long passengerUsers = users.stream()
-                .filter(user -> user.getRole() == Role.PASSENGER)
-                .count();
-        long driverUsers = users.stream()
-                .filter(user -> user.getRole() == Role.DRIVER)
-                .count();
-        long adminUsers = users.stream()
-                .filter(user -> user.getRole() == Role.ADMIN)
-                .count();
-
-        Map<String, Object> report = new LinkedHashMap<>();
-        report.put("totalUsers", totalUsers);
-        report.put("verifiedUsers", verifiedUsers);
-        report.put("passengerUsers", passengerUsers);
-        report.put("driverUsers", driverUsers);
-        report.put("adminUsers", adminUsers);
-
-        return report;
-    }
-
     private Driver findDriverOrThrow(Long driverId) {
-        return driverRepository.findByDriverId(driverId)
+        return driverRepository.findById(driverId)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver not found with id " + driverId));
     }
 }
