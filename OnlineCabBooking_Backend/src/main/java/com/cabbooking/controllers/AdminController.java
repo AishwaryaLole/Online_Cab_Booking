@@ -101,8 +101,8 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver report generated.", adminService.getDriverReport()));
     }
 
-    @GetMapping("/reports/users")
+   /* @GetMapping("/reports/users")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getUserReport() {
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "User report generated.", adminService.getUserReport()));
-    }
+    }*/
 }
