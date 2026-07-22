@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cabbooking.dto.ApiResponse;
+import com.cabbooking.dto.DriverAdminResponseDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
+import com.cabbooking.dto.RideAdminResponseDto;
 import com.cabbooking.dto.RideCancellationRequest;
+import com.cabbooking.dto.UserAdminResponseDto;
 import com.cabbooking.dto.UserUpdateRequest;
 import com.cabbooking.entities.Driver;
 import com.cabbooking.entities.Ride;
@@ -39,38 +42,50 @@ public class AdminController {
     }
 
     @PostMapping("/drivers/{driverId}/approve")
-    public ResponseEntity<ApiResponse<Driver>> approveDriver(@PathVariable Long driverId) {
+    public ResponseEntity<ApiResponse<DriverAdminResponseDto>> approveDriver(@PathVariable Long driverId) {
         Driver driver = adminService.approveDriver(driverId);
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver approved successfully.", driver));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver approved successfully.",
+                toDriverAdminResponseDto(driver)));
     }
 
     @PostMapping("/drivers/{driverId}/block")
-    public ResponseEntity<ApiResponse<Driver>> blockDriver(@PathVariable Long driverId) {
+    public ResponseEntity<ApiResponse<DriverAdminResponseDto>> blockDriver(@PathVariable Long driverId) {
         Driver driver = adminService.blockDriver(driverId);
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver blocked successfully.", driver));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver blocked successfully.",
+                toDriverAdminResponseDto(driver)));
     }
 
     @PutMapping("/drivers/{driverId}/status")
-    public ResponseEntity<ApiResponse<Driver>> updateDriverStatus(@PathVariable Long driverId,
+    public ResponseEntity<ApiResponse<DriverAdminResponseDto>> updateDriverStatus(@PathVariable Long driverId,
             @Valid @RequestBody DriverStatusUpdateRequest request) {
         Driver driver = adminService.updateDriverStatus(driverId, request);
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver status updated successfully.", driver));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver status updated successfully.",
+                toDriverAdminResponseDto(driver)));
     }
 
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Users fetched successfully.", adminService.getAllUsers()));
+    public ResponseEntity<ApiResponse<List<UserAdminResponseDto>>> getAllUsers() {
+        List<UserAdminResponseDto> users = adminService.getAllUsers()
+                .stream()
+                .map(this::toUserAdminResponseDto)
+                .toList();
+
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Users fetched successfully.", users));
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long userId) {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "User fetched successfully.", adminService.getUserById(userId)));
+    public ResponseEntity<ApiResponse<UserAdminResponseDto>> getUserById(@PathVariable Long userId) {
+        User user = adminService.getUserById(userId);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "User fetched successfully.",
+                toUserAdminResponseDto(user)));
     }
 
     @PutMapping("/users/{userId}")
-    public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long userId,
+    public ResponseEntity<ApiResponse<UserAdminResponseDto>> updateUser(@PathVariable Long userId,
             @Valid @RequestBody UserUpdateRequest request) {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "User updated successfully.", adminService.updateUser(userId, request)));
+        User user = adminService.updateUser(userId, request);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "User updated successfully.",
+                toUserAdminResponseDto(user)));
     }
 
     @DeleteMapping("/users/{userId}")
@@ -80,29 +95,74 @@ public class AdminController {
     }
 
     @PostMapping("/rides/{rideId}/cancel")
-    public ResponseEntity<ApiResponse<Ride>> cancelRide(@PathVariable Long rideId,
+    public ResponseEntity<ApiResponse<RideAdminResponseDto>> cancelRide(@PathVariable Long rideId,
             @Valid @RequestBody RideCancellationRequest request) {
         Ride ride = adminService.cancelRide(rideId, request);
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Ride cancelled successfully.", ride));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Ride cancelled successfully.",
+                toRideAdminResponseDto(ride)));
     }
 
     @GetMapping("/reports/bookings")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getBookingReport() {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Booking report generated.", adminService.getBookingReport()));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Booking report generated.",
+                adminService.getBookingReport()));
     }
 
     @GetMapping("/reports/revenue")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getRevenueReport() {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Revenue report generated.", adminService.getRevenueReport()));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Revenue report generated.",
+                adminService.getRevenueReport()));
     }
 
     @GetMapping("/reports/drivers")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getDriverReport() {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver report generated.", adminService.getDriverReport()));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver report generated.",
+                adminService.getDriverReport()));
     }
 
-   /* @GetMapping("/reports/users")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getUserReport() {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "User report generated.", adminService.getUserReport()));
-    }*/
+    private DriverAdminResponseDto toDriverAdminResponseDto(Driver driver) {
+        Long userId = driver.getUser() != null ? driver.getUser().getId() : null;
+        String userName = driver.getUser() != null ? driver.getUser().getName() : null;
+
+        return new DriverAdminResponseDto(
+                driver.getId(),
+                userId,
+                userName,
+                driver.getLicenseNumber(),
+                driver.getStatus(),
+                driver.getAvailability(),
+                driver.getRating(),
+                driver.getTotalRides()
+        );
+    }
+
+    private UserAdminResponseDto toUserAdminResponseDto(User user) {
+        return new UserAdminResponseDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getRole(),
+                user.getIsVerified(),
+                user.getCreatedAt(),
+                user.getUpdatedAt()
+        );
+    }
+
+    private RideAdminResponseDto toRideAdminResponseDto(Ride ride) {
+        Long passengerId = ride.getPassenger() != null ? ride.getPassenger().getId() : null;
+        Long driverId = ride.getDriver() != null ? ride.getDriver().getId() : null;
+
+        return new RideAdminResponseDto(
+                ride.getId(),
+                passengerId,
+                driverId,
+                ride.getPickupLocation(),
+                ride.getDropLocation(),
+                ride.getFare(),
+                ride.getStatus(),
+                ride.getCreatedAt(),
+                ride.getUpdatedAt()
+        );
+    }
 }
