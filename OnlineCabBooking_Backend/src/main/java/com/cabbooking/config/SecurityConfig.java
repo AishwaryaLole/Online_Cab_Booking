@@ -39,7 +39,7 @@ public class SecurityConfig {
 
                 ).permitAll()
 
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
