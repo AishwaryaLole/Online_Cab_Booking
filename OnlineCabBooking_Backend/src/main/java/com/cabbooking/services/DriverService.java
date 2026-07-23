@@ -24,6 +24,7 @@ public interface DriverService {
     DriverLocationDto updateLocation(Long driverId, DriverLocationDto locationDto);
 
     DriverDto addDriver(DriverDto driverDto);
-    
+        
+    void deleteDriver(Long driverId);
     
 }

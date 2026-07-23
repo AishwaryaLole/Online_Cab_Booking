@@ -1,8 +1,10 @@
 package com.cabbooking.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.cabbooking.dto.DriverAvailabilityDto;
@@ -26,6 +28,7 @@ public class DriverServiceImpl implements DriverService {
     private final DriverRepository driverRepository;
     private final DriverLocationRepository driverLocationRepository;
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public DriverDto addDriver(DriverDto driverDto) {
@@ -110,17 +113,24 @@ public class DriverServiceImpl implements DriverService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Driver not found"));
 
-        DriverLocation location = new DriverLocation();
+        // Get existing location
+        DriverLocation location = driver.getDriverLocation();
 
-        location.setDriver(driver);
+        // If location doesn't exist, create one
+        if (location == null) {
+            location = new DriverLocation();
+            location.setDriver(driver);
+            driver.setDriverLocation(location);
+        }
+
+        // Update location
         location.setLatitude(locationDto.getLatitude());
         location.setLongitude(locationDto.getLongitude());
+        location.setUpdatedAt(LocalDateTime.now());
 
-        DriverLocation savedLocation =
-                driverLocationRepository.save(location);
+        DriverLocation savedLocation = driverLocationRepository.save(location);
 
         DriverLocationDto dto = new DriverLocationDto();
-
         dto.setDriverId(driverId);
         dto.setLatitude(savedLocation.getLatitude());
         dto.setLongitude(savedLocation.getLongitude());
@@ -139,4 +149,16 @@ public class DriverServiceImpl implements DriverService {
 
         return dto;
     }
+
+    @Override
+    public void deleteDriver(Long driverId) {
+
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Driver not found"));
+
+        driverRepository.delete(driver);
+    }
+
+
 }
