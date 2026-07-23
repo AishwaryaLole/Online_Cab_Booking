@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-	
-	private final JwtFilter jwtFilter;
+
+    private final JwtFilter jwtFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -28,22 +28,31 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+            // Enable CORS
+            .cors(cors -> {})
+
+            // Disable CSRF for stateless JWT authentication
             .csrf(csrf -> csrf.disable())
+
             .authorizeHttpRequests(auth -> auth
 
                 .requestMatchers(
-                        "/user/auth/**",     // Registration & Login APIs
-                        "/v3/api-docs/**",   // OpenAPI JSON
-                        "/swagger-ui/**",    // Swagger UI resources
-                        "/swagger-ui.html" // Swagger UI page
-
+                        "/user/auth/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html"
                 ).permitAll()
 
                 .anyRequest().permitAll()
             )
+
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+            .addFilterBefore(
+                    jwtFilter,
+                    UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }
