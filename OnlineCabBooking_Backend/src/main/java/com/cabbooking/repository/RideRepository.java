@@ -20,6 +20,9 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
         return findAll();
     }
 
+    // Get all rides of a passenger
+    List<Ride> findByPassenger_Id(Long passengerId);
+
     List<Ride> findAllByStatus(RideStatus status);
 
     default Ride saveRide(Ride ride) {
