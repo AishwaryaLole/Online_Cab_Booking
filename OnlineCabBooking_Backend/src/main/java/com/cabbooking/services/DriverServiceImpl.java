@@ -74,8 +74,10 @@ public class DriverServiceImpl implements DriverService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Driver not found"));
 
+        // Update license number
         driver.setLicenseNumber(driverDto.getLicenseNumber());
 
+        // Update status
         if (driverDto.getStatus() != null) {
             driver.setStatus(DriverStatus.valueOf(driverDto.getStatus()));
         }
