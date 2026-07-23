@@ -14,6 +14,11 @@ import com.cabbooking.entities.User;
 @Repository
 
 public interface UserRepository extends JpaRepository<User, Long> {
+	
+	
+	 Optional<User> findByEmail(String email);
+
+	  Optional<User> findByPhone(String phone);
 
     default Optional<User> findByUserId(Long id) {
         return findById(id);
