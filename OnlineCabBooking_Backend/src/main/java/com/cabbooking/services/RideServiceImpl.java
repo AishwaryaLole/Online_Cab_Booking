@@ -80,35 +80,128 @@ public class RideServiceImpl implements RideService {
 	@Override
 	public RideResponseDTO getRideById(Long id) {
 
+	    // Find ride from database
 	    Ride ride = rideRepository.findById(id)
 	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
 
-	    return modelMapper.map(ride, RideResponseDTO.class);
+	    // Convert entity to DTO
+	    RideResponseDTO response = modelMapper.map(ride, RideResponseDTO.class);
+
+	    // Set passenger ID manually
+	    response.setPassengerId(ride.getPassenger().getId());
+
+	    // Set driver ID if assigned
+	    if (ride.getDriver() != null) {
+	        response.setDriverId(ride.getDriver().getId());
+	    }
+
+	    return response;
 	}
-	
 
 	@Override
 	public List<RideResponseDTO> getRideHistory(Long passengerId) {
-		// TODO Auto-generated method stub
-		return null;
+
+	    // Get all rides of the passenger
+	    List<Ride> rides = rideRepository.findByPassenger_Id(passengerId);
+
+	    // Convert Ride list to RideResponseDTO list
+	    return rides.stream()
+	            .map(ride -> {
+
+	                RideResponseDTO response = modelMapper.map(ride, RideResponseDTO.class);
+
+	                // Set passenger ID
+	                response.setPassengerId(ride.getPassenger().getId());
+
+	                // Set driver ID if driver is assigned
+	                if (ride.getDriver() != null) {
+	                    response.setDriverId(ride.getDriver().getId());
+	                }
+
+	                return response;
+	            })
+	            .toList();
 	}
 
 	@Override
 	public RideResponseDTO cancelRide(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+
+	    // Find ride by ID
+	    Ride ride = rideRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+
+	    // Update ride status
+	    ride.setStatus(com.cabbooking.enums.RideStatus.CANCELLED);
+
+	    // Save updated ride
+	    Ride updatedRide = rideRepository.save(ride);
+
+	    // Convert entity to DTO
+	    RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
+
+	    // Set passenger ID
+	    response.setPassengerId(updatedRide.getPassenger().getId());
+
+	    // Set driver ID if assigned
+	    if (updatedRide.getDriver() != null) {
+	        response.setDriverId(updatedRide.getDriver().getId());
+	    }
+
+	    return response;
 	}
 
 	@Override
 	public RideResponseDTO startRide(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+
+	    // Find ride by ID
+	    Ride ride = rideRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+
+	    // Update ride status
+	    ride.setStatus(com.cabbooking.enums.RideStatus.IN_PROGRESS);
+
+	    // Save updated ride
+	    Ride updatedRide = rideRepository.save(ride);
+
+	    // Convert entity to DTO
+	    RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
+
+	    // Set passenger ID
+	    response.setPassengerId(updatedRide.getPassenger().getId());
+
+	    // Set driver ID if assigned
+	    if (updatedRide.getDriver() != null) {
+	        response.setDriverId(updatedRide.getDriver().getId());
+	    }
+
+	    return response;
 	}
 
 	@Override
 	public RideResponseDTO completeRide(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+
+	    // Find ride by ID
+	    Ride ride = rideRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+
+	    // Update ride status
+	    ride.setStatus(com.cabbooking.enums.RideStatus.COMPLETED);
+
+	    // Save updated ride
+	    Ride updatedRide = rideRepository.save(ride);
+
+	    // Convert entity to DTO
+	    RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
+
+	    // Set passenger ID
+	    response.setPassengerId(updatedRide.getPassenger().getId());
+
+	    // Set driver ID if assigned
+	    if (updatedRide.getDriver() != null) {
+	        response.setDriverId(updatedRide.getDriver().getId());
+	    }
+
+	    return response;
 	}
 
 }
