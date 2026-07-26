@@ -1,0 +1,70 @@
+:root{
+
+  --primary:#2563eb;
+  --primary-hover:#1d4ed8;
+
+  --secondary:#64748b;
+
+  --success:#16a34a;
+
+  --danger:#dc2626;
+
+  --warning:#f59e0b;
+
+  --background:#f8fafc;
+
+  --surface:#ffffff;
+
+  --border:#e2e8f0;
+
+  --text:#1e293b;
+
+  --text-light:#64748b;
+
+  --radius:14px;
+
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  background:var(--background);
+  color:var(--text);
+}
+
+.page-container{
+  max-width:1400px;
+  margin:auto;
+  padding:20px;
+}
+
+.section-title{
+  font-size:2rem;
+  font-weight:700;
+}
+
+.card-shadow{
+  box-shadow:0 8px 25px rgba(0,0,0,.08);
+}
+
+.primary-btn{
+  background:var(--primary);
+  color:white;
+  transition:.3s;
+}
+
+.primary-btn:hover{
+  background:var(--primary-hover);
+}
+
+.rounded-card{
+  border-radius:var(--radius);
+}
+
+input,
+select,
+textarea{
+  outline:none;
+}
