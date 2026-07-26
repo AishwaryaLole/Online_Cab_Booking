@@ -16,8 +16,10 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
+	
+	private final JwtFilter jwtFilter;
 
-    private final JwtFilter jwtFilter;
+   
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,10 +39,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
 
                 .requestMatchers(
-                        "/user/auth/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html"
+
+                        "/user/auth/**",     // Registration & Login APIs
+                        "/v3/api-docs/**",   // OpenAPI JSON
+                        "/swagger-ui/**",    // Swagger UI resources
+                        "/swagger-ui.html" // Swagger UI page
+
+
                 ).permitAll()
 
                 .anyRequest().permitAll()
@@ -48,11 +53,7 @@ public class SecurityConfig {
 
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-            .addFilterBefore(
-                    jwtFilter,
-                    UsernamePasswordAuthenticationFilter.class
-            );
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
