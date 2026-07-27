@@ -1,0 +1,28 @@
+import { Search } from "lucide-react";
+
+const UserSearch = ({ search, setSearch }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div className="relative">
+        {/* Search Icon */}
+        <Search
+          size={20}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+        />
+
+        {/* Search Input */}
+        <input
+          type="text"
+          placeholder="Search by Name, Email or Phone..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3
+                     focus:outline-none focus:ring-2 focus:ring-blue-500
+                     focus:border-blue-500"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default UserSearch;
