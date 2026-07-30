@@ -113,30 +113,33 @@ public class AdminServiceImpl implements IAdminService {
     }
 
     @Override
-    @Transactional
-    public User updateUser(Long userId, UserUpdateRequest request) {
-        if (request == null) {
-            throw new BadRequestException("User update request is required.");
-        }
-
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
-
-        if (request.getName() != null && !request.getName().isBlank()) {
-            user.setName(request.getName());
-        }
-        if (request.getPhone() != null && !request.getPhone().isBlank()) {
-            user.setPhone(request.getPhone());
-        }
-        if (request.getRole() != null) {
-            user.setRole(request.getRole());
-        }
-        if (request.getIsVerified() != null) {
-            user.setIsVerified(request.getIsVerified());
-        }
-
-        return userRepository.saveUser(user);
+@Transactional
+public User updateUser(Long userId, UserUpdateRequest request) {
+    if (request == null) {
+        throw new BadRequestException("User update request is required.");
     }
+
+    User user = userRepository.findByUserId(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+
+    if (request.getName() != null && !request.getName().isBlank()) {
+        user.setName(request.getName());
+    }
+    if (request.getPhone() != null && !request.getPhone().isBlank()) {
+        user.setPhone(request.getPhone());
+    }
+    if (request.getEmail() != null && !request.getEmail().isBlank()) {
+        user.setEmail(request.getEmail());
+    }
+    if (request.getRole() != null) {
+        user.setRole(request.getRole());
+    }
+    if (request.getIsVerified() != null) {
+        user.setIsVerified(request.getIsVerified());
+    }
+
+    return userRepository.saveUser(user);
+}
 
     @Override
     @Transactional

@@ -75,6 +75,8 @@ const UserList = () => {
       await adminService.updateUser(updatedUser.id, {
         name: updatedUser.name,
         phone: updatedUser.phone,
+        email:updatedUser.email,
+        address : updatedUser.address,
         role: updatedUser.role,
         isVerified: updatedUser.isVerified,
       });
@@ -167,8 +169,8 @@ const UserList = () => {
       </div>
 
       {isDeleteModalOpen && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 overflow-y-auto">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl max-h-[calc(100vh-3rem)] overflow-y-auto">
             <h2 className="text-lg font-semibold text-gray-900">Confirm Delete</h2>
             <p className="mt-2 text-sm text-gray-600">
               Are you sure you want to delete{" "}
