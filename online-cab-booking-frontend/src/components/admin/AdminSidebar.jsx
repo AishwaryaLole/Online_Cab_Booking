@@ -12,7 +12,7 @@ import {
 const menuItems = [
   {
     title: "Dashboard",
-    path: "/admin/dashboard",
+    path: "/admin",
     icon: <LayoutDashboard size={20} />,
   },
   {
@@ -75,6 +75,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
             <NavLink
               key={item.path}
               to={item.path}
+              end
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-6 py-3 transition-all duration-200

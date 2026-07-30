@@ -119,6 +119,16 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver report generated.",
                 adminService.getDriverReport()));
     }
+    
+    @GetMapping("/dashboard")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getDashboardStats() {
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(),
+                true,
+                "Dashboard data fetched successfully.",
+                adminService.getDashboardStats()
+        ));
+    }
 
     private DriverAdminResponseDto toDriverAdminResponseDto(Driver driver) {
         Long userId = driver.getUser() != null ? driver.getUser().getId() : null;

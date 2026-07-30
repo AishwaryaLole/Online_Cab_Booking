@@ -110,6 +110,9 @@ const adminService = {
 
   getPassengerReport: () =>
     API.get("/admins/reports/passengers"),
+
+    updateUser: (id, userData) =>
+    API.put(`/admins/users/${id}`, userData),
 };
 
 export default adminService;
