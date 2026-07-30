@@ -59,16 +59,12 @@ function AppRoutes() {
       </Route>
 
       {/* Passenger Routes */}
+      
       <Route
-        path="/passenger"
-        element={
-          <PrivateRoute>
-            <RoleRoute role="PASSENGER">
-              <PassengerLayout />
-            </RoleRoute>
-          </PrivateRoute>
-        }
-      >
+    path="/passenger"
+    element={<PassengerLayout />}
+  >
+
         <Route index element={<Dashboard />} />
         <Route path="book-ride" element={<BookRide />} />
         <Route path="ride-history" element={<RideHistory />} />
