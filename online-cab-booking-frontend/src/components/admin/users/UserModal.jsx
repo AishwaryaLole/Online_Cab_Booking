@@ -38,14 +38,22 @@ const UserModal = ({ user, onClose, onSave }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (onSave) {
-      onSave({ ...user, ...formData });
+      onSave({
+        ...user,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        role: formData.role,
+        isVerified: formData.isVerified,
+      });
     }
     setIsEditing(false);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4 py-6 overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[calc(100vh-3rem)] overflow-y-auto">
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h2 className="text-xl font-bold">{isEditing ? "Edit User" : "User Details"}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-red-600">
@@ -110,24 +118,6 @@ const UserModal = ({ user, onClose, onSave }) => {
                 />
               ) : (
                 <h3>{user.phone}</h3>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <MapPin className="text-red-600" size={20} />
-            <div className="w-full">
-              <p className="text-gray-500 text-sm">Address</p>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-                />
-              ) : (
-                <h3>{user.address || "Not Available"}</h3>
               )}
             </div>
           </div>
