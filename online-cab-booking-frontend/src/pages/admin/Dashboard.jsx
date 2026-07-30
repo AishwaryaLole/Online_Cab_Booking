@@ -25,10 +25,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadDashboard();
-  }, []);
-
-  const loadDashboard = async () => {
+     const loadDashboard = async () => {
     console.log("Dashboard mounted");
     console.log("Calling Dashboard API...");
 
@@ -57,6 +54,10 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+    loadDashboard();
+  }, []);
+
+ 
 
   if (loading) {
     return (

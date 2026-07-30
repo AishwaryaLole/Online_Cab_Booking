@@ -165,24 +165,41 @@ public class AdminServiceImpl implements IAdminService {
     public Map<String, Object> getBookingReport() {
         List<Ride> rides = rideRepository.findAllRides();
 
-        long totalBookings = rides.size();
-        long completedBookings = rides.stream()
+        long completed = rides.stream()
                 .filter(ride -> ride.getStatus() == RideStatus.COMPLETED)
                 .count();
-        long cancelledBookings = rides.stream()
+
+        long cancelled = rides.stream()
                 .filter(ride -> ride.getStatus() == RideStatus.CANCELLED)
                 .count();
 
-        double totalRevenue = paymentRepository.findAllPayments().stream()
-                .filter(payment -> payment.getPaymentStatus() == PaymentStatus.SUCCESS)
-                .mapToDouble(Payment::getAmount)
-                .sum();
+        long pending = rides.size() - completed - cancelled;
+
+        List<Map<String, Object>> bookings = rides.stream().map(ride -> {
+            Map<String, Object> booking = new LinkedHashMap<>();
+            booking.put("bookingId", ride.getId());
+            booking.put("passengerName", ride.getPassenger() != null ? ride.getPassenger().getName() : null);
+            booking.put("driverName", ride.getDriver() != null && ride.getDriver().getUser() != null
+                    ? ride.getDriver().getUser().getName() : null);
+            booking.put("fare", ride.getFare());
+            booking.put("bookingDate", ride.getCreatedAt());
+            booking.put("status", ride.getStatus() == RideStatus.COMPLETED
+                    ? "COMPLETED"
+                    : ride.getStatus() == RideStatus.CANCELLED
+                        ? "CANCELLED"
+                        : "PENDING");
+            return booking;
+        }).toList();
+
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("totalBookings", rides.size());
+        summary.put("completed", completed);
+        summary.put("pending", pending);
+        summary.put("cancelled", cancelled);
 
         Map<String, Object> report = new LinkedHashMap<>();
-        report.put("totalBookings", totalBookings);
-        report.put("completedBookings", completedBookings);
-        report.put("cancelledBookings", cancelledBookings);
-        report.put("totalRevenue", totalRevenue);
+        report.put("summary", summary);
+        report.put("bookings", bookings);
 
         return report;
     }
