@@ -51,65 +51,65 @@ const adminService = {
   // =====================================
 
   getDashboardStats: () =>
-    API.get("/admin/dashboard"),
+    API.get("/admins/dashboard"),
 
   // =====================================
   // Users
   // =====================================
 
   getUsers: () =>
-    API.get("/admin/users"),
+    API.get("/admins/users"),
 
   getUserById: (id) =>
-    API.get(`/admin/users/${id}`),
+    API.get(`/admins/users/${id}`),
 
   deleteUser: (id) =>
-    API.delete(`/admin/users/${id}`),
+    API.delete(`/admins/users/${id}`),
 
   // =====================================
   // Drivers
   // =====================================
 
   getDrivers: () =>
-    API.get("/admin/drivers"),
+    API.get("/admins/drivers"),
 
   getDriverById: (id) =>
-    API.get(`/admin/drivers/${id}`),
+    API.get(`/admins/drivers/${id}`),
 
   approveDriver: (id) =>
-    API.put(`/admin/drivers/${id}/approve`),
+    API.put(`/admins/drivers/${id}/approve`),
 
   rejectDriver: (id) =>
-    API.put(`/admin/drivers/${id}/reject`),
+    API.put(`/admins/drivers/${id}/reject`),
 
   suspendDriver: (id) =>
-    API.put(`/admin/drivers/${id}/suspend`),
+    API.put(`/admins/drivers/${id}/suspend`),
 
   // =====================================
   // Bookings
   // =====================================
 
   getBookings: () =>
-    API.get("/admin/bookings"),
+    API.get("/admins/bookings"),
 
   getBookingById: (id) =>
-    API.get(`/admin/bookings/${id}`),
+    API.get(`/admins/bookings/${id}`),
 
   // =====================================
   // Reports
   // =====================================
 
   getBookingReport: () =>
-    API.get("/admin/reports/bookings"),
+    API.get("/admins/reports/bookings"),
 
   getRevenueReport: () =>
-    API.get("/admin/reports/revenue"),
+    API.get("/admins/reports/revenue"),
 
   getDriverReport: () =>
-    API.get("/admin/reports/drivers"),
+    API.get("/admins/reports/drivers"),
 
   getPassengerReport: () =>
-    API.get("/admin/reports/passengers"),
+    API.get("/admins/reports/passengers"),
 };
 
 export default adminService;
