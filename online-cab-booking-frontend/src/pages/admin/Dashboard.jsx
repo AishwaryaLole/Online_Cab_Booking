@@ -25,37 +25,38 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-     const loadDashboard = async () => {
-    console.log("Dashboard mounted");
-    console.log("Calling Dashboard API...");
-
+  const loadDashboard = async () => {
     try {
       setLoading(true);
-
       const response = await adminService.getDashboardStats();
-
-      console.log("Dashboard API Response:", response);
-
-      const data = response.data;
+      const payload = response?.data?.data ?? response?.data ?? {};
 
       setStats({
-        totalUsers: data.totalUsers || 0,
-        totalDrivers: data.totalDrivers || 0,
-        totalBookings: data.totalBookings || 0,
-        totalRevenue: data.totalRevenue || 0,
+        totalUsers: payload.totalUsers || 0,
+        totalDrivers: payload.totalDrivers || 0,
+        totalBookings: payload.totalBookings || 0,
+        totalRevenue: payload.totalRevenue || 0,
       });
 
-      setRecentBookings(data.recentBookings || []);
-      setActiveDrivers(data.activeDrivers || []);
-      setPendingDrivers(data.pendingDrivers || []);
+      setRecentBookings(payload.recentBookings || []);
+      setActiveDrivers(payload.activeDrivers || []);
+      setPendingDrivers(payload.pendingDrivers || []);
+      setTimeout(() => {
+  setLoading(false);
+}, 800);
     } catch (error) {
       console.error("Dashboard API Error:", error);
-    } finally {
-      setLoading(false);
     }
   };
+
+  loadDashboard();
+
+  const intervalId = setInterval(() => {
     loadDashboard();
-  }, []);
+  }, 10000);
+
+  return () => clearInterval(intervalId);
+}, []);
 
  
 

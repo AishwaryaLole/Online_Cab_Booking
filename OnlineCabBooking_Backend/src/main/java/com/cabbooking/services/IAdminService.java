@@ -34,4 +34,6 @@ public interface IAdminService {
     Map<String, Object> getRevenueReport();
 
     Map<String, Object> getDriverReport();
+    
+    Map<String, Object> getDashboardStats();
 }
