@@ -1,135 +1,161 @@
-import { useEffect, useMemo, useState } from "react";
-import adminService from "../../../services/adminService";
-import UserSearch from "../../../components/admin/users/UserSearch";
-import UserTable from "../../../components/admin/users/UserTable";
-import UserModal from "../../../components/admin/users/UserModal";
+import { UserSearch } from "lucide-react";
+import { useEffect, useState } from "react";
+
+
 
 const UserList = () => {
+
   const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
 
-  const [search, setSearch] = useState("");
-
-  const [loading, setLoading] = useState(true);
-
-  const [error, setError] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
-      async function fetchUsers() {
-    try {
-      setLoading(true);
-      setError("");
+    console.log("useEffect running");
 
-      const response = await adminService.getUsers();
+    async function fetchUsers() {
+      console.log("Calling API...");
 
-      // Supports both array response and {data:[]}
-      setUsers(response.data || response);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load users.");
-    } finally {
-      setLoading(false);
+      try {
+        const response = await fetch("http://localhost:8080/api/admins/users");
+        console.log("Response:", response.status);
+
+        const result = await response.json();
+        console.log(result.data);
+
+        setUsers(result.data);
+        setFilteredUsers(result.data);
+      } catch (err) {
+        console.error(err);
+      }
     }
-  };
+
     fetchUsers();
   }, []);
 
 
 
-  const deleteUser = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this user?"
-    );
+  
 
-    if (!confirmDelete) return;
 
-    try {
-      await adminService.deleteUser(id);
 
-      setUsers((prev) =>
-        prev.filter((user) => user.id !== id)
-      );
+  const handleSearch = (value) => {
 
-      alert("User deleted successfully.");
-    } catch (err) {
-      console.error(err);
-      alert("Unable to delete user.");
-    }
-  };
+    const searchValue = value.toLowerCase();
 
-  const filteredUsers = useMemo(() => {
-    return users.filter((user) => {
-      const value = search.toLowerCase();
+
+    const filtered = users.filter((user)=>{
 
       return (
-        user.name?.toLowerCase().includes(value) ||
-        user.email?.toLowerCase().includes(value) ||
-        user.phone?.toLowerCase().includes(value)
+        user.name?.toLowerCase().includes(searchValue) ||
+        user.email?.toLowerCase().includes(searchValue) ||
+        user.phone?.includes(searchValue)
       );
+
     });
-  }, [users, search]);
 
-  if (loading) {
-    return (
-      <div className="text-center py-10 text-lg">
-        Loading Users...
-      </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className="text-center py-10 text-red-600">
-        {error}
-      </div>
-    );
-  }
+    setFilteredUsers(filtered);
 
-  return (
+  };
+
+
+
+  /*return (
+
     <div>
 
-      {/* Page Header */}
 
-      <div className="flex justify-between items-center mb-6">
+      <UserSearch
+        onSearch={handleSearch}
+      />
 
-        <div>
-          <h1 className="text-3xl font-bold">
-            User Management
-          </h1>
 
-          <p className="text-gray-500">
-            View and manage all registered users.
-          </p>
-        </div>
+      <div className="bg-white rounded-lg shadow">
+
+
+        {
+          filteredUsers.map((user)=>(
+
+            <div 
+              key={user.id}
+              className="p-4 border-b"
+            >
+
+              <h3>
+                {user.name}
+              </h3>
+
+              <p>
+                {user.email}
+              </p>
+
+              <p>
+                {user.phone}
+              </p>
+
+
+            </div>
+
+          ))
+        }
+
 
       </div>
 
-      {/* Search */}
-
-      <UserSearch
-        search={search}
-        setSearch={setSearch}
-      />
-
-      {/* Table */}
-
-      <UserTable
-        users={filteredUsers}
-        onView={setSelectedUser}
-        onDelete={deleteUser}
-      />
-
-      {/* Modal */}
-
-      {selectedUser && (
-        <UserModal
-          user={selectedUser}
-          onClose={() => setSelectedUser(null)}
-        />
-      )}
 
     </div>
-  );
-};
 
+  );
+
+  };
+
+
+export default UserList;*/
+
+
+
+
+return (
+  <div className="p-6">
+    {/* Search Bar */}
+    <div className="flex items-center gap-2 mb-6">
+      <input
+        type="text"
+        placeholder="Search by name, email or phone..."
+        onChange={(e) => handleSearch(e.target.value)}
+        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <button
+        onClick={() => {
+          // Search already happens while typing.
+          // This button is for UI consistency.
+        }}
+        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+      >
+        <UserSearch size={18} />
+        Search
+      </button>
+    </div>
+
+    {/* User List */}
+    <div className="bg-white rounded-lg shadow">
+      {filteredUsers.length > 0 ? (
+        filteredUsers.map((user) => (
+          <div
+            key={user.id}
+            className="p-4 border-b last:border-b-0"
+          >
+            <h3 className="font-semibold">{user.name}</h3>
+            <p>{user.email}</p>
+            <p>{user.phone}</p>
+          </div>
+        ))
+      ) : (
+        <p className="p-4 text-gray-500">No users found.</p>
+      )}
+    </div>
+  </div>
+);
+};
 export default UserList;

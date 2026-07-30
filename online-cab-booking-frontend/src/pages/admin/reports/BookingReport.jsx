@@ -9,68 +9,64 @@ import {
 import adminService from "../../../services/adminService";
 
 const BookingReport = () => {
-  const [reports, setReports] = useState([]);
+  // const [reports, setReports] = useState([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("ALL");
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-     async function loadReport(){
+  const [reportData, setReportData] = useState({
+  summary: { totalBookings: 0, completed: 0, pending: 0, cancelled: 0 },
+  bookings: [],
+});
+
+useEffect(() => {
+  async function loadReport() {
     try {
       setLoading(true);
 
-      const response =
-        await adminService.getBookingReport();
+      const response = await adminService.getBookingReport();
+      const payload = response?.data?.data ?? {};
 
-      setReports(response.data || response);
+      setReportData({
+        summary: payload.summary || {
+          totalBookings: 0,
+          completed: 0,
+          pending: 0,
+          cancelled: 0,
+        },
+        bookings: payload.bookings || [],
+      });
     } catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
     }
-  };
-    loadReport();
-  }, []);
+  }
 
- 
+  loadReport();
+}, []);
 
-  const filteredReports = useMemo(() => {
-    return reports.filter((report) => {
-      const keyword = search.toLowerCase();
+const filteredReports = useMemo(() => {
+  return reportData.bookings.filter((report) => {
+    const keyword = search.toLowerCase();
 
-      const searchMatch =
-        report.bookingId
-          ?.toString()
-          .includes(keyword) ||
-        report.passengerName
-          ?.toLowerCase()
-          .includes(keyword) ||
-        report.driverName
-          ?.toLowerCase()
-          .includes(keyword);
+    const searchMatch =
+      report.bookingId?.toString().includes(keyword) ||
+      report.passengerName?.toLowerCase().includes(keyword) ||
+      report.driverName?.toLowerCase().includes(keyword);
 
-      const statusMatch =
-        status === "ALL" ||
-        report.status === status;
+    const statusMatch =
+      status === "ALL" || report.status === status;
 
-      return searchMatch && statusMatch;
-    });
-  }, [reports, search, status]);
+    return searchMatch && statusMatch;
+  });
+}, [reportData.bookings, search, status]);
 
-  const totalBookings = reports.length;
-
-  const completed = reports.filter(
-    (r) => r.status === "COMPLETED"
-  ).length;
-
-  const pending = reports.filter(
-    (r) => r.status === "PENDING"
-  ).length;
-
-  const cancelled = reports.filter(
-    (r) => r.status === "CANCELLED"
-  ).length;
+const totalBookings = reportData.summary.totalBookings ?? reportData.bookings.length;
+const completed = reportData.summary.completed ?? 0;
+const pending = reportData.summary.pending ?? 0;
+const cancelled = reportData.summary.cancelled ?? 0;
 
   if (loading) {
     return (
