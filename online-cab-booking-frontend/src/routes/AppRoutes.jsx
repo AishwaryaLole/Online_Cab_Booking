@@ -27,6 +27,9 @@ import BookRide from "../pages/passenger/BookRide";
 import RideHistory from "../pages/passenger/RideHistory";
 import Profile from "../pages/passenger/Profile";
 import Payment from "../pages/passenger/Payment";
+
+
+// ++++++++
 import TrackRide from "../pages/passenger/TrackRide";
 import Rating from "../pages/passenger/Rating";
 
@@ -72,6 +75,8 @@ function AppRoutes() {
         <Route path="ride-history" element={<RideHistory />} />
         <Route path="profile" element={<Profile />} />
         <Route path="payment" element={<Payment />} />
+
+        {/* +++++++ */}
         <Route path="track" element={<TrackRide />} />
         <Route path="rating" element={<Rating />} />
       </Route>
