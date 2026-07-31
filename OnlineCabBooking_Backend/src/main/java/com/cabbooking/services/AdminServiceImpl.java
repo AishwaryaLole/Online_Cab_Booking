@@ -9,6 +9,7 @@ import java.util.Comparator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cabbooking.dto.BookingAdminResponseDto;
 import com.cabbooking.dto.DriverReportDto;
 import com.cabbooking.dto.DriverReportItemDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
@@ -525,6 +526,58 @@ public void deleteUser(Long userId) {
 
     return dto;
 }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingAdminResponseDto> getAllBookings() {
+
+        return rideRepository.findAll()
+                .stream()
+                .map(this::mapBooking)
+                .toList();
+    }
+    
+    private BookingAdminResponseDto mapBooking(Ride ride) {
+
+        BookingAdminResponseDto dto =
+                new BookingAdminResponseDto();
+
+        dto.setId(ride.getId());
+
+        dto.setBookingId(ride.getId());
+
+        dto.setPassengerName(
+                ride.getPassenger().getName());
+
+        if (ride.getDriver() != null) {
+            dto.setDriverName(
+                    ride.getDriver()
+                            .getUser()
+                            .getName());
+        } else {
+            dto.setDriverName("Not Assigned");
+        }
+
+        dto.setPickupLocation(
+                ride.getPickupLocation());
+
+        dto.setDropLocation(
+                ride.getDropLocation());
+
+        dto.setFare(
+                ride.getFare());
+
+        dto.setDistanceKm(
+                ride.getDistanceKm());
+
+        dto.setStatus(
+                ride.getStatus().name());
+
+        dto.setBookingDate(
+                ride.getCreatedAt().toString());
+
+        return dto;
+    }
     private DriverReportItemDto mapDriverReport(Driver driver) {
 
         DriverReportItemDto dto = new DriverReportItemDto();
