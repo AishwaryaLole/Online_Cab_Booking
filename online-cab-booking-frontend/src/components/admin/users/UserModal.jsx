@@ -1,4 +1,4 @@
-import { X, User, Mail, Phone, MapPin, Calendar, Save } from "lucide-react";
+import { X, User, Mail, Phone, Calendar, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const UserModal = ({ user, onClose, onSave }) => {
@@ -14,6 +14,7 @@ const UserModal = ({ user, onClose, onSave }) => {
 
   useEffect(() => {
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         name: user.name || "",
         email: user.email || "",
