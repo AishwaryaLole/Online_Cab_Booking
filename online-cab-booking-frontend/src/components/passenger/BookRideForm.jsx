@@ -48,6 +48,8 @@ function BookRideForm({
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    console.log(rideData);
+
     if (
       !rideData.pickup ||
       !rideData.drop ||

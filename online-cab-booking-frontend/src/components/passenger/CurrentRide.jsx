@@ -44,7 +44,17 @@ function CurrentRide({ currentRide }) {
           Current Ride
         </h2>
 
-        <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-semibold">
+          <span
+            className={`px-4 py-1 rounded-full text-sm font-semibold ${
+              currentRide.status === "REQUESTED"
+                ? "bg-yellow-100 text-yellow-700"
+                : currentRide.status === "IN_PROGRESS"
+                ? "bg-blue-100 text-blue-700"
+                : currentRide.status === "COMPLETED"
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-100 text-gray-700"
+            }`}
+          >
           {currentRide.status}
         </span>
       </div>
@@ -58,7 +68,7 @@ function CurrentRide({ currentRide }) {
             <p className="text-sm text-gray-500">Pickup</p>
 
             <h4 className="font-semibold">
-              {currentRide.pickup}
+              {currentRide.pickupLocation}
             </h4>
           </div>
         </div>
@@ -70,7 +80,7 @@ function CurrentRide({ currentRide }) {
             <p className="text-sm text-gray-500">Drop</p>
 
             <h4 className="font-semibold">
-              {currentRide.drop}
+              {currentRide.dropLocation}
             </h4>
           </div>
         </div>
@@ -82,7 +92,7 @@ function CurrentRide({ currentRide }) {
             <p className="text-sm text-gray-500">Driver</p>
 
             <h4 className="font-semibold">
-              {currentRide.driver}
+             {currentRide.driverId ? `Driver #${currentRide.driverId}` : "Not Assigned Yet"}
             </h4>
           </div>
         </div>
@@ -94,7 +104,7 @@ function CurrentRide({ currentRide }) {
             <p className="text-sm text-gray-500">Vehicle</p>
 
             <h4 className="font-semibold">
-              {currentRide.vehicle}
+              {currentRide.driverId ? "Vehicle Details Pending" : "Waiting for Driver"}
             </h4>
           </div>
         </div>
@@ -103,12 +113,26 @@ function CurrentRide({ currentRide }) {
 
       <div className="grid grid-cols-2 gap-4 mt-8">
 
-        <button className="flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition-all">
+      <button
+        disabled={!currentRide.driverId}
+        className={`flex justify-center items-center gap-2 py-3 rounded-xl transition-all text-white ${
+          currentRide.driverId
+            ? "bg-blue-600 hover:bg-blue-700"
+            : "bg-gray-400 cursor-not-allowed"
+        }`}
+      >
           <FaPhoneAlt />
           Call Driver
         </button>
 
-        <button className="bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition-all">
+          <button
+            disabled={currentRide.status === "COMPLETED"}
+            className={`py-3 rounded-xl text-white transition-all ${
+              currentRide.status === "COMPLETED"
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-red-500 hover:bg-red-600"
+            }`}
+          >
           Cancel Ride
         </button>
 

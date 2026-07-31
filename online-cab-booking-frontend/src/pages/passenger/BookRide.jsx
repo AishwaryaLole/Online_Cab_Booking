@@ -1,11 +1,14 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import BookRideForm from "../../components/passenger/BookRideForm";
 import FareEstimate from "../../components/passenger/FareEstimate";
 import RideConfirmation from "../../components/passenger/RideConfirmation";
 import RideMap from "../../components/map/RideMap";
+import { bookRide } from "../../services/passengerService";
 
 function BookRide() {
+
+  const navigate = useNavigate();
 
   // Ride Details
   const [rideData, setRideData] = useState({
@@ -38,17 +41,44 @@ function BookRide() {
   const handleContinue = () => {
     setShowBookingDetails(true);
   };
-
   // Confirm Ride
-  const handleConfirmRide = () => {
+    const handleConfirmRide = async () => {
+  try {
 
-    console.log("Ride Booked");
+    const request = {
+      passengerId: 2,
 
-    console.log(rideData);
+      pickupLocation: rideData.pickup,
+      pickupLatitude: rideData.pickupLat,
+      pickupLongitude: rideData.pickupLng,
 
-    alert("Ride Booking API will be connected in next step.");
-  };
+      dropLocation: rideData.drop,
+      dropLatitude: rideData.dropLat,
+      dropLongitude: rideData.dropLng,
+    };
 
+    console.log("Request:", request);
+
+      const response = await bookRide(request);
+
+      localStorage.setItem("rideId", response.data.id);
+
+      alert(response.message);
+
+      navigate("/passenger/track");
+
+    // Navigate to Track Ride page
+    navigate("/passenger/track", {
+      state: {
+        rideId: response.data.id,
+      },
+    });
+
+  } catch (error) {
+    console.error(error);
+    alert("Unable to book ride.");
+  }
+};
   return (
     <div className="min-h-screen bg-gray-100 p-6">
 
