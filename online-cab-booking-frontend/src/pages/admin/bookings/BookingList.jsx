@@ -21,7 +21,7 @@ const BookingList = () => {
 
       const response = await adminService.getBookings();
 
-      setBookings(response.data || response);
+      setBookings(response.data.data || []);
 
       setError("");
     } catch (err) {

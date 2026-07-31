@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cabbooking.dto.ApiResponse;
+import com.cabbooking.dto.BookingAdminResponseDto;
 import com.cabbooking.dto.DriverAdminResponseDto;
 import com.cabbooking.dto.DriverReportDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
@@ -147,6 +148,21 @@ public class AdminController {
                 "Dashboard data fetched successfully.",
                 adminService.getDashboardStats()
         ));
+    }
+    
+    @GetMapping("/bookings")
+    public ResponseEntity<ApiResponse<List<BookingAdminResponseDto>>> getAllBookings() {
+
+        List<BookingAdminResponseDto> bookings =
+                adminService.getAllBookings();
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(),
+                true,
+                "Booking data fetched successfully.",
+                bookings
+        ));
+
+       
     }
 
     private DriverAdminResponseDto toDriverAdminResponseDto(Driver driver) {
