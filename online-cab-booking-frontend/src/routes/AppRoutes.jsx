@@ -22,25 +22,32 @@ import AdminRegister from "../pages/auth/AdminRegister";
 import NotFound from "../pages/NotFound";
 
 // Passenger Pages
-import Dashboard from "../pages/passenger/Dashboard";
+import PassengerDashboard from "../pages/passenger/Dashboard";
 import BookRide from "../pages/passenger/BookRide";
-import RideHistory from "../pages/passenger/RideHistory";
-import Profile from "../pages/passenger/Profile";
+import PassengerRideHistory from "../pages/passenger/RideHistory";
+import PassengerProfile from "../pages/passenger/Profile";
 import Payment from "../pages/passenger/Payment";
 
 // Driver Pages
 import DriverDashboard from "../pages/driver/Dashboard";
 import RideRequests from "../pages/driver/RideRequests";
+import DriverRideHistory from "../pages/driver/RideHistory";
 import Earnings from "../pages/driver/Earnings";
 import DriverProfile from "../pages/driver/Profile";
 import VehicleDetails from "../pages/driver/VehicleDetails";
+import Availability from "../pages/driver/Availability";
+import CurrentRide from "../pages/driver/CurrentRide";
+import DriverMap from "../components/driver/DriverMap";
+import RideHistoryPage from "../pages/driver/RideHistoryPage";
 
+{/*
 // Admin Pages
 import AdminDashboard from "../pages/admin/Dashboard";
 import Users from "../pages/admin/Users";
 import Drivers from "../pages/admin/Drivers";
 import Bookings from "../pages/admin/Bookings";
 import Reports from "../pages/admin/Reports";
+*/}
 
 function AppRoutes() {
   return (
@@ -69,10 +76,10 @@ function AppRoutes() {
           </PrivateRoute>
         }
       >
-        <Route index element={<Dashboard />} />
+        <Route index element={<PassengerDashboard />} />
         <Route path="book-ride" element={<BookRide />} />
-        <Route path="ride-history" element={<RideHistory />} />
-        <Route path="profile" element={<Profile />} />
+        <Route path="ride-history" element={<PassengerRideHistory />} />
+        <Route path="profile" element={<PassengerProfile />} />
         <Route path="payment" element={<Payment />} />
       </Route>
 
@@ -88,13 +95,19 @@ function AppRoutes() {
         }
       >
         <Route index element={<DriverDashboard />} />
+        <Route path="dashboard" element={<DriverDashboard />} />
         <Route path="ride-requests" element={<RideRequests />} />
+        <Route path="current-ride" element={<CurrentRide />} />
+        <Route path="ride-history" element={<DriverRideHistory />} />
         <Route path="earnings" element={<Earnings />} />
         <Route path="profile" element={<DriverProfile />} />
         <Route path="vehicle-details" element={<VehicleDetails />} />
+        <Route path="availability" element={<Availability />} />
+        <Route path="map" element={<DriverMap />} />
+        <Route path="/driver/history" element={<RideHistoryPage />} />
       </Route>
 
-      {/* Admin Routes */}
+      {/* Admin Routes 
       <Route
         path="/admin"
         element={
@@ -111,6 +124,8 @@ function AppRoutes() {
         <Route path="bookings" element={<Bookings />} />
         <Route path="reports" element={<Reports />} />
       </Route>
+      */}
+   
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />

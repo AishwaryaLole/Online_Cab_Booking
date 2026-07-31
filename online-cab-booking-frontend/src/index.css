@@ -14,3 +14,32 @@ body {
     system-ui,
     sans-serif;
 }
+
+
+/* Leaflet Map Height Fix */
+
+.leaflet-container {
+
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+
+}
+
+
+/* Hide Leaflet routing instruction panel */
+
+.leaflet-routing-container {
+
+  display: none;
+
+}
+
+
+/* Keep map controls above layers */
+
+.leaflet-control-container {
+
+  z-index: 999;
+
+}
