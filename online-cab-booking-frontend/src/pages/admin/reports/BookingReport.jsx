@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CalendarCheck,
   CheckCircle,
@@ -10,6 +11,7 @@ import adminService from "../../../services/adminService";
 
 const BookingReport = () => {
   // const [reports, setReports] = useState([]);
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("ALL");
 
@@ -81,8 +83,9 @@ const cancelled = reportData.summary.cancelled ?? 0;
 
       {/* Heading */}
 
-      <div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
+      <div>
         <h1 className="text-3xl font-bold">
           Booking Report
         </h1>
@@ -90,8 +93,36 @@ const cancelled = reportData.summary.cancelled ?? 0;
         <p className="text-gray-500">
           Booking statistics and history
         </p>
+      </div>
+
+      <div className="p-2">
+
+        <select
+          value="/admin/reports/bookings"
+          onChange={(e) => navigate(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2
+                    bg-white shadow-sm
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500 p-2 rounded-lg"
+        >
+          <option value="/admin/reports/bookings">
+            📖 Booking Report
+          </option>
+
+          <option value="/admin/reports/drivers">
+            🚖 Driver Report
+          </option>
+
+          <option className="rounded-lg" value="/admin/reports/revenue">
+            💰 Revenue Report
+          </option>
+
+        </select>
 
       </div>
+
+    </div>
 
       {/* Summary Cards */}
 

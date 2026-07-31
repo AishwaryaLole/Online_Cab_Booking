@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   IndianRupee,
   Wallet,
@@ -9,40 +10,44 @@ import {
 import adminService from "../../../services/adminService";
 
 const RevenueReport = () => {
-  const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [reports, setReports] = useState([]);
+
+  const [summary, setSummary] = useState({
+    totalRevenue: 0,
+    paidPayments: 0,
+    pendingPayments: 0,
+  });
 
   useEffect(() => {
-      async function loadRevenueReport() {
-    try {
-      setLoading(true);
+    async function loadRevenueReport() {
+      try {
+        setLoading(true);
 
-      const response = await adminService.getRevenueReport();
+        const response =
+          await adminService.getRevenueReport();
 
-      setReports(response.data || response);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+        setReports(
+          response.data.data.transactions || []
+        );
+
+        setSummary(
+          response.data.data.summary || {
+            totalRevenue: 0,
+            paidPayments: 0,
+            pendingPayments: 0,
+          }
+        );
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     }
-  };
+
     loadRevenueReport();
   }, []);
-
-
-
-  const totalRevenue = reports.reduce(
-    (sum, item) => sum + Number(item.amount || 0),
-    0
-  );
-
-  const completedPayments = reports.filter(
-    (item) => item.paymentStatus === "PAID"
-  ).length;
-
-  const pendingPayments = reports.filter(
-    (item) => item.paymentStatus === "PENDING"
-  ).length;
 
   if (loading) {
     return (
@@ -57,6 +62,8 @@ const RevenueReport = () => {
 
       {/* Header */}
 
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
       <div>
         <h1 className="text-3xl font-bold">
           Revenue Report
@@ -66,6 +73,35 @@ const RevenueReport = () => {
           Revenue generated from completed rides.
         </p>
       </div>
+
+      <div>
+
+        <select
+          value="/admin/reports/revenue"
+          onChange={(e) => navigate(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2
+                    bg-white shadow-sm
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500"
+        >
+          <option value="/admin/reports/bookings">
+            📖 Booking Report
+          </option>
+
+          <option value="/admin/reports/drivers">
+            🚖 Driver Report
+          </option>
+
+          <option value="/admin/reports/revenue">
+            💰 Revenue Report
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
 
       {/* Summary Cards */}
 
@@ -80,7 +116,7 @@ const RevenueReport = () => {
           </h3>
 
           <p className="text-3xl font-bold">
-            ₹ {totalRevenue}
+            ₹ {summary.totalRevenue}
           </p>
 
         </div>
@@ -94,7 +130,7 @@ const RevenueReport = () => {
           </h3>
 
           <p className="text-3xl font-bold">
-            {completedPayments}
+            {summary.paidPayments}
           </p>
 
         </div>
@@ -108,7 +144,7 @@ const RevenueReport = () => {
           </h3>
 
           <p className="text-3xl font-bold">
-            {pendingPayments}
+            {summary.pendingPayments}
           </p>
 
         </div>
@@ -157,59 +193,69 @@ const RevenueReport = () => {
 
             <tbody>
 
-              {reports.map((report) => (
+              {reports.length > 0 ? (
+                reports.map((report) => (
 
-                <tr
-                  key={report.id}
-                  className="border-b hover:bg-gray-50"
-                >
+                  <tr
+                    key={report.id}
+                    className="border-b hover:bg-gray-50"
+                  >
 
-                  <td className="px-4 py-3">
-                    #{report.bookingId}
+                    <td className="px-4 py-3">
+                      #{report.bookingId}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {report.passengerName}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {report.driverName}
+                    </td>
+
+                    <td className="px-4 py-3 font-semibold">
+                      ₹ {report.amount}
+                    </td>
+
+                    <td className="px-4 py-3">
+
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          report.paymentStatus === "PAID"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {report.paymentStatus}
+                      </span>
+
+                    </td>
+
+                    <td className="px-4 py-3">
+
+                      <div className="flex items-center gap-2">
+
+                        <CalendarDays size={16} />
+
+                        {report.paymentDate}
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="6"
+                    className="text-center py-6 text-gray-500"
+                  >
+                    No revenue records found.
                   </td>
-
-                  <td className="px-4 py-3">
-                    {report.passengerName}
-                  </td>
-
-                  <td className="px-4 py-3">
-                    {report.driverName}
-                  </td>
-
-                  <td className="px-4 py-3 font-semibold">
-                    ₹ {report.amount}
-                  </td>
-
-                  <td className="px-4 py-3">
-
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold
-                      ${
-                        report.paymentStatus === "PAID"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {report.paymentStatus}
-                    </span>
-
-                  </td>
-
-                  <td className="px-4 py-3">
-
-                    <div className="flex items-center gap-2">
-
-                      <CalendarDays size={16} />
-
-                      {report.paymentDate}
-
-                    </div>
-
-                  </td>
-
                 </tr>
-
-              ))}
+              )}
 
             </tbody>
 

@@ -22,7 +22,7 @@ const PassengerReport = () => {
       const response =
         await adminService.getPassengerReport();
 
-      setPassengers(response.data || response);
+      setPassengers(response.data.data || response);
     } catch (error) {
       console.error(error);
     } finally {

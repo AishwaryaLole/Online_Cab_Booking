@@ -3,18 +3,26 @@ package com.cabbooking.services;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.Comparator;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.cabbooking.dto.DriverReportDto;
+import com.cabbooking.dto.DriverReportItemDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
+import com.cabbooking.dto.DriverSummaryDto;
+import com.cabbooking.dto.RevenueReportDto;
+import com.cabbooking.dto.RevenueSummaryDto;
+import com.cabbooking.dto.RevenueTransactionDto;
 import com.cabbooking.dto.RideCancellationRequest;
 import com.cabbooking.dto.UserUpdateRequest;
 import com.cabbooking.entities.Driver;
 import com.cabbooking.entities.Payment;
 import com.cabbooking.entities.Ride;
 import com.cabbooking.entities.User;
+import com.cabbooking.entities.Vehicle;
 import com.cabbooking.enums.DriverStatus;
 import com.cabbooking.enums.PaymentStatus;
 import com.cabbooking.enums.RideStatus;
@@ -332,47 +340,78 @@ public void deleteUser(Long userId) {
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getRevenueReport() {
+    public RevenueReportDto getRevenueReport() {
+
         List<Payment> payments = paymentRepository.findAllPayments();
 
-        double totalRevenue = payments.stream()
-                .filter(payment -> payment.getPaymentStatus() == PaymentStatus.SUCCESS)
-                .mapToDouble(Payment::getAmount)
-                .sum();
+        RevenueSummaryDto summary = new RevenueSummaryDto();
 
-        long successfulPayments = payments.stream()
-                .filter(payment -> payment.getPaymentStatus() == PaymentStatus.SUCCESS)
-                .count();
+        summary.setTotalRevenue(
+                payments.stream()
+                        .filter(p -> p.getPaymentStatus() == PaymentStatus.SUCCESS)
+                        .mapToDouble(Payment::getAmount)
+                        .sum());
 
-        Map<String, Object> report = new LinkedHashMap<>();
-        report.put("totalRevenue", totalRevenue);
-        report.put("successfulPayments", successfulPayments);
-        report.put("pendingPayments", payments.stream()
-                .filter(payment -> payment.getPaymentStatus() == PaymentStatus.PENDING)
-                .count());
+        summary.setPaidPayments(
+                payments.stream()
+                        .filter(p -> p.getPaymentStatus() == PaymentStatus.SUCCESS)
+                        .count());
 
-        return report;
+        summary.setPendingPayments(
+                payments.stream()
+                        .filter(p -> p.getPaymentStatus() == PaymentStatus.PENDING)
+                        .count());
+
+        List<RevenueTransactionDto> transactions =
+                payments.stream()
+                        .map(this::mapRevenueTransaction)
+                        .toList();
+
+        RevenueReportDto dto = new RevenueReportDto();
+
+        dto.setSummary(summary);
+        dto.setTransactions(transactions);
+
+        return dto;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getDriverReport() {
-        List<Driver> drivers = driverRepository.findAll();
+    public DriverReportDto getDriverReport() {
 
-        long totalDrivers = drivers.size();
-        long approvedDrivers = drivers.stream()
-                .filter(driver -> driver.getStatus() == DriverStatus.APPROVED)
-                .count();
-        long blockedDrivers = drivers.stream()
-                .filter(driver -> driver.getStatus() == DriverStatus.BLOCKED)
-                .count();
+        List<Driver> driverList = driverRepository.findAll();
 
-        Map<String, Object> report = new LinkedHashMap<>();
-        report.put("totalDrivers", totalDrivers);
-        report.put("approvedDrivers", approvedDrivers);
-        report.put("blockedDrivers", blockedDrivers);
+        DriverSummaryDto summary = new DriverSummaryDto();
 
-        return report;
+        summary.setTotalDrivers((long) driverList.size());
+
+        summary.setApprovedDrivers(
+                driverList.stream()
+                        .filter(d -> d.getStatus() == DriverStatus.APPROVED)
+                        .count());
+
+        summary.setPendingDrivers(
+                driverList.stream()
+                        .filter(d -> d.getStatus() == DriverStatus.PENDING)
+                        .count());
+
+        summary.setSuspendedDrivers(
+                driverList.stream()
+                        .filter(d -> d.getStatus() == DriverStatus.BLOCKED)
+                        .count());
+
+        List<DriverReportItemDto> drivers =
+                driverList.stream()
+                        .map(this::mapDriverReport)
+                        .toList();
+
+        DriverReportDto dto = new DriverReportDto();
+
+        dto.setSummary(summary);
+
+        dto.setDrivers(drivers);
+
+        return dto;
     }
 
     private Driver findDriverOrThrow(Long driverId) {
@@ -455,5 +494,66 @@ public void deleteUser(Long userId) {
     @Transactional(readOnly = true)
     public List<Driver> getAllDrivers() {
         return driverRepository.findAll();
+    }
+
+    private RevenueTransactionDto mapRevenueTransaction(Payment payment) {
+
+    RevenueTransactionDto dto = new RevenueTransactionDto();
+
+    dto.setId(payment.getId());
+
+    dto.setBookingId(payment.getRide().getId());
+
+    dto.setPassengerName(
+            payment.getRide().getPassenger().getName());
+
+    dto.setDriverName(
+            payment.getRide().getDriver() == null
+                    ? "Not Assigned"
+                    : payment.getRide().getDriver().getUser().getName());
+
+    dto.setAmount(payment.getAmount());
+
+    dto.setPaymentStatus(
+            payment.getPaymentStatus().name());
+
+    dto.setPaymentMethod(
+            payment.getPaymentMethod().name());
+
+    dto.setPaymentDate(
+            payment.getPaymentDate());
+
+    return dto;
+}
+    private DriverReportItemDto mapDriverReport(Driver driver) {
+
+        DriverReportItemDto dto = new DriverReportItemDto();
+
+        dto.setId(driver.getId());
+
+        dto.setName(driver.getUser().getName());
+
+        dto.setEmail(driver.getUser().getEmail());
+
+        dto.setPhone(driver.getUser().getPhone());
+
+        // Vehicle Number
+        if (driver.getVehicles() != null && !driver.getVehicles().isEmpty()) {
+        	dto.setVehicleNumber(
+        	        driver.getVehicles()
+        	              .stream()
+        	              .map(Vehicle::getVehicleNumber)
+        	              .collect(Collectors.joining(", "))
+        	);
+        } else {
+            dto.setVehicleNumber("N/A");
+        }
+
+        // Total Trips
+        dto.setTotalTrips(driver.getTotalRides());
+
+        dto.setStatus(driver.getStatus().name());
+
+        return dto;
     }
 }
