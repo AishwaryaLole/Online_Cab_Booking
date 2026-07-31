@@ -31,13 +31,8 @@ const AdminNavbar = ({ sidebarOpen, setSidebarOpen }) => {
           </button>
 
           {/* Search */}
-          <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2 w-72">
-            <Search size={18} className="text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="bg-transparent outline-none ml-2 w-full"
-            />
+          <div className="hidden md:flex items-center rounded-lg px-3 py-2 w-72">
+            <h1 className="font-bold">Welcome Admin</h1>
           </div>
         </div>
 
