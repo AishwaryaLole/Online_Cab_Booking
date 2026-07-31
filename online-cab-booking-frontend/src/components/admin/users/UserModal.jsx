@@ -314,32 +314,9 @@ const UserModal = ({ user, onClose, onSave }) => {
             <label className="block text-sm font-medium text-gray-700">
               Role
             </label>
-
-            {isEditing ? (
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2"
-              >
-                <option value="PASSENGER">
-                  Passenger
-                </option>
-
-                <option value="DRIVER">
-                  Driver
-                </option>
-
-                <option value="ADMIN">
-                  Admin
-                </option>
-
-              </select>
-            ) : (
-              <p className="mt-2 text-gray-700">
+            <p className="mt-2 text-gray-700">
                 {user.role}
               </p>
-            )}
 
             <label className="mt-4 flex items-center gap-2 text-sm text-gray-700">
 
