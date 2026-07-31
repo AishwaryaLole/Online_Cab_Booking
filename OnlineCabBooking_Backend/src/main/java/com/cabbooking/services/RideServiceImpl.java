@@ -9,199 +9,166 @@ import com.cabbooking.dto.RideRequestDTO;
 import com.cabbooking.dto.RideResponseDTO;
 import com.cabbooking.entities.Ride;
 import com.cabbooking.entities.User;
+import com.cabbooking.enums.RideStatus;
 import com.cabbooking.exception.ResourceNotFoundException;
 import com.cabbooking.repository.RideRepository;
 import com.cabbooking.repository.UserRepository;
 
 @Service
-
 public class RideServiceImpl implements RideService {
-	
-	private final RideRepository rideRepository ;
-	private final UserRepository userRepository;
-	private final ModelMapper modelMapper;
-	
-	//Constructor Injection
-	public RideServiceImpl(RideRepository rideRepository,UserRepository userRepository,ModelMapper modelMapper)
-	{
-		this.rideRepository = rideRepository;
-		this.userRepository = userRepository;
-		this.modelMapper = modelMapper;
-	}
 
-	@Override
-	public RideResponseDTO bookRide(RideRequestDTO request) {
-		 // Get passenger from database
-	    User passenger = userRepository.findById(request.getPassengerId())
-	            .orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
-	    
-	    //Create new ride object
-	    Ride ride = new Ride();
-	    
-	    //Set passenger
-	    ride.setPassenger(passenger);
-	    
-	    // Set pickup details
-	    ride.setPickupLocation(request.getPickupLocation());
-	    ride.setPickupLatitude(request.getPickupLatitude());
-	    ride.setPickupLongitude(request.getPickupLongitude());
-	    
-	    // Set drop details
-	    ride.setDropLocation(request.getDropLocation());
-	    ride.setDropLatitude(request.getDropLatitude());
-	    ride.setDropLongitude(request.getDropLongitude());
-	    
-	    // Save ride in database
-	    Ride savedRide = rideRepository.save(ride);
-	    
-	    // Create response object
-	    RideResponseDTO response = new RideResponseDTO();
+    private final RideRepository rideRepository;
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
-	    response.setId(savedRide.getId());
-	    response.setPassengerId(savedRide.getPassenger().getId());
+    // Constructor Injection
+    public RideServiceImpl(RideRepository rideRepository,
+                           UserRepository userRepository,
+                           ModelMapper modelMapper) {
 
-	    if (savedRide.getDriver() != null) {
-	        response.setDriverId(savedRide.getDriver().getId());
-	    }
+        this.rideRepository = rideRepository;
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+    }
+    @Override
+    public RideResponseDTO bookRide(RideRequestDTO request) {
 
-	    response.setPickupLocation(savedRide.getPickupLocation());
-	    response.setDropLocation(savedRide.getDropLocation());
-	    response.setDistanceKm(savedRide.getDistanceKm());
-	    response.setDurationMin(savedRide.getDurationMin());
-	    response.setFare(savedRide.getFare());
-	    response.setStatus(savedRide.getStatus());
-	    response.setCreatedAt(savedRide.getCreatedAt());
+        User passenger = userRepository.findById(request.getPassengerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Passenger not found"));
 
-	    return response;
-	    
-	
-	}
+        Ride ride = new Ride();
 
-	@Override
-	public RideResponseDTO getRideById(Long id) {
+        ride.setPassenger(passenger);
+        ride.setPickupLocation(request.getPickupLocation());
+        ride.setPickupLatitude(request.getPickupLatitude());
+        ride.setPickupLongitude(request.getPickupLongitude());
 
-	    // Find ride from database
-	    Ride ride = rideRepository.findById(id)
-	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+        ride.setDropLocation(request.getDropLocation());
+        ride.setDropLatitude(request.getDropLatitude());
+        ride.setDropLongitude(request.getDropLongitude());
 
-	    // Convert entity to DTO
-	    RideResponseDTO response = modelMapper.map(ride, RideResponseDTO.class);
+        ride.setStatus(RideStatus.REQUESTED);
 
-	    // Set passenger ID manually
-	    response.setPassengerId(ride.getPassenger().getId());
+        Ride savedRide = rideRepository.save(ride);
 
-	    // Set driver ID if assigned
-	    if (ride.getDriver() != null) {
-	        response.setDriverId(ride.getDriver().getId());
-	    }
+        RideResponseDTO response = new RideResponseDTO();
 
-	    return response;
-	}
+        response.setId(savedRide.getId());
+        response.setPassengerId(savedRide.getPassenger().getId());
 
-	@Override
-	public List<RideResponseDTO> getRideHistory(Long passengerId) {
+        if (savedRide.getDriver() != null) {
+            response.setDriverId(savedRide.getDriver().getId());
+        }
 
-	    // Get all rides of the passenger
-	    List<Ride> rides = rideRepository.findByPassenger_Id(passengerId);
+        response.setPickupLocation(savedRide.getPickupLocation());
+        response.setDropLocation(savedRide.getDropLocation());
+        response.setDistanceKm(savedRide.getDistanceKm());
+        response.setDurationMin(savedRide.getDurationMin());
+        response.setFare(savedRide.getFare());
+        response.setStatus(savedRide.getStatus());
+        response.setCreatedAt(savedRide.getCreatedAt());
 
-	    // Convert Ride list to RideResponseDTO list
-	    return rides.stream()
-	            .map(ride -> {
+        return response;
+    }
 
-	                RideResponseDTO response = modelMapper.map(ride, RideResponseDTO.class);
+    @Override
+    public RideResponseDTO getRideById(Long id) {
 
-	                // Set passenger ID
-	                response.setPassengerId(ride.getPassenger().getId());
+        Ride ride = rideRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
 
-	                // Set driver ID if driver is assigned
-	                if (ride.getDriver() != null) {
-	                    response.setDriverId(ride.getDriver().getId());
-	                }
+        RideResponseDTO response = modelMapper.map(ride, RideResponseDTO.class);
 
-	                return response;
-	            })
-	            .toList();
-	}
+        response.setPassengerId(ride.getPassenger().getId());
 
-	@Override
-	public RideResponseDTO cancelRide(Long id) {
+        if (ride.getDriver() != null) {
+            response.setDriverId(ride.getDriver().getId());
+        }
 
-	    // Find ride by ID
-	    Ride ride = rideRepository.findById(id)
-	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+        return response;
+    }
 
-	    // Update ride status
-	    ride.setStatus(com.cabbooking.enums.RideStatus.CANCELLED);
+    @Override
+    public List<RideResponseDTO> getRideHistory(Long passengerId) {
 
-	    // Save updated ride
-	    Ride updatedRide = rideRepository.save(ride);
+        List<Ride> rides = rideRepository.findByPassenger_Id(passengerId);
 
-	    // Convert entity to DTO
-	    RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
+        return rides.stream()
+                .map(ride -> {
 
-	    // Set passenger ID
-	    response.setPassengerId(updatedRide.getPassenger().getId());
+                    RideResponseDTO response = modelMapper.map(ride, RideResponseDTO.class);
 
-	    // Set driver ID if assigned
-	    if (updatedRide.getDriver() != null) {
-	        response.setDriverId(updatedRide.getDriver().getId());
-	    }
+                    response.setPassengerId(ride.getPassenger().getId());
 
-	    return response;
-	}
+                    if (ride.getDriver() != null) {
+                        response.setDriverId(ride.getDriver().getId());
+                    }
 
-	@Override
-	public RideResponseDTO startRide(Long id) {
+                    return response;
+                })
+                .toList();
+    }
 
-	    // Find ride by ID
-	    Ride ride = rideRepository.findById(id)
-	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+    @Override
+    public RideResponseDTO cancelRide(Long id) {
 
-	    // Update ride status
-	    ride.setStatus(com.cabbooking.enums.RideStatus.IN_PROGRESS);
+        Ride ride = rideRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
 
-	    // Save updated ride
-	    Ride updatedRide = rideRepository.save(ride);
+        ride.setStatus(RideStatus.CANCELLED);
 
-	    // Convert entity to DTO
-	    RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
+        Ride updatedRide = rideRepository.save(ride);
 
-	    // Set passenger ID
-	    response.setPassengerId(updatedRide.getPassenger().getId());
+        RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
 
-	    // Set driver ID if assigned
-	    if (updatedRide.getDriver() != null) {
-	        response.setDriverId(updatedRide.getDriver().getId());
-	    }
+        response.setPassengerId(updatedRide.getPassenger().getId());
 
-	    return response;
-	}
+        if (updatedRide.getDriver() != null) {
+            response.setDriverId(updatedRide.getDriver().getId());
+        }
 
-	@Override
-	public RideResponseDTO completeRide(Long id) {
+        return response;
+    }
 
-	    // Find ride by ID
-	    Ride ride = rideRepository.findById(id)
-	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+    @Override
+    public RideResponseDTO startRide(Long id) {
 
-	    // Update ride status
-	    ride.setStatus(com.cabbooking.enums.RideStatus.COMPLETED);
+        Ride ride = rideRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
 
-	    // Save updated ride
-	    Ride updatedRide = rideRepository.save(ride);
+        ride.setStatus(RideStatus.IN_PROGRESS);
 
-	    // Convert entity to DTO
-	    RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
+        Ride updatedRide = rideRepository.save(ride);
 
-	    // Set passenger ID
-	    response.setPassengerId(updatedRide.getPassenger().getId());
+        RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
 
-	    // Set driver ID if assigned
-	    if (updatedRide.getDriver() != null) {
-	        response.setDriverId(updatedRide.getDriver().getId());
-	    }
+        response.setPassengerId(updatedRide.getPassenger().getId());
 
-	    return response;
-	}
+        if (updatedRide.getDriver() != null) {
+            response.setDriverId(updatedRide.getDriver().getId());
+        }
 
+        return response;
+    }
+
+    @Override
+    public RideResponseDTO completeRide(Long id) {
+
+        Ride ride = rideRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+
+        ride.setStatus(RideStatus.COMPLETED);
+
+        Ride updatedRide = rideRepository.save(ride);
+
+        RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
+
+        response.setPassengerId(updatedRide.getPassenger().getId());
+
+        if (updatedRide.getDriver() != null) {
+            response.setDriverId(updatedRide.getDriver().getId());
+        }
+
+        return response;
+    }
 }
