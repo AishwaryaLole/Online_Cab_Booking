@@ -73,7 +73,7 @@ public class AdminController {
 
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Users fetched successfully.", users));
     }
-    
+
     @GetMapping("/drivers")
     public ResponseEntity<ApiResponse<List<DriverAdminResponseDto>>> getAllDrivers() {
         List<DriverAdminResponseDto> drivers = adminService.getAllDrivers()
@@ -130,7 +130,7 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver report generated.",
                 adminService.getDriverReport()));
     }
-    
+
     @GetMapping("/dashboard")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getDashboardStats() {
         return ResponseEntity.ok(new ApiResponse<>(
@@ -197,27 +197,27 @@ public class AdminController {
     }
 
     private DriverAdminResponseDto toDriverAdminResponseDt(Driver driver) {
-    String vehicleNumber = null;
-    String vehicleType = null;
+        String vehicleNumber = null;
+        String vehicleType = null;
 
-    if (driver.getVehicles() != null && !driver.getVehicles().isEmpty()) {
-        Vehicle vehicle = driver.getVehicles().get(0);
-        vehicleNumber = vehicle.getVehicleNumber();
-        vehicleType = vehicle.getVehicleType();
+        if (driver.getVehicles() != null && !driver.getVehicles().isEmpty()) {
+            Vehicle vehicle = driver.getVehicles().get(0);
+            vehicleNumber = vehicle.getVehicleNumber();
+            vehicleType = vehicle.getVehicleType();
+        }
+
+        return new DriverAdminResponseDto(
+                driver.getId(),
+                driver.getUser() != null ? driver.getUser().getName() : null,
+                driver.getUser() != null ? driver.getUser().getEmail() : null,
+                driver.getUser() != null ? driver.getUser().getPhone() : null,
+                driver.getLicenseNumber(),
+                vehicleNumber,
+                vehicleType,
+                driver.getRating(),
+                driver.getTotalRides(),
+                driver.getAvailability(),
+                driver.getStatus() != null ? driver.getStatus().name() : null
+        );
     }
-
-    return new DriverAdminResponseDto(
-            driver.getId(),
-            driver.getUser() != null ? driver.getUser().getName() : null,
-            driver.getUser() != null ? driver.getUser().getEmail() : null,
-            driver.getUser() != null ? driver.getUser().getPhone() : null,
-            driver.getLicenseNumber(),
-            vehicleNumber,
-            vehicleType,
-            driver.getRating(),
-            driver.getTotalRides(),
-            driver.getAvailability(),
-            driver.getStatus() != null ? driver.getStatus().name() : null
-    );
-}
 }

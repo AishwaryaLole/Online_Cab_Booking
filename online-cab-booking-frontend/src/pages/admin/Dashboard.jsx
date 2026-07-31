@@ -53,7 +53,7 @@ const Dashboard = () => {
 
   const intervalId = setInterval(() => {
     loadDashboard();
-  }, 10000);
+  }, 60000);
 
   return () => clearInterval(intervalId);
 }, []);

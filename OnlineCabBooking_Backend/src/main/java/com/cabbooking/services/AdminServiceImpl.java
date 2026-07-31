@@ -20,10 +20,12 @@ import com.cabbooking.enums.PaymentStatus;
 import com.cabbooking.enums.RideStatus;
 import com.cabbooking.exception.BadRequestException;
 import com.cabbooking.exception.ResourceNotFoundException;
+import com.cabbooking.repository.DriverLocationRepository;
 import com.cabbooking.repository.DriverRepository;
 import com.cabbooking.repository.PaymentRepository;
 import com.cabbooking.repository.RideRepository;
 import com.cabbooking.repository.UserRepository;
+import com.cabbooking.repository.VehicleRepository;
 import com.cabbooking.entities.Rating;
 import com.cabbooking.repository.RatingRepository;
 
@@ -35,17 +37,23 @@ public class AdminServiceImpl implements IAdminService {
     private final RideRepository rideRepository;
     private final PaymentRepository paymentRepository;
     private final RatingRepository ratingRepository;
+    private final DriverLocationRepository driverLocationRepository;
+    private final VehicleRepository vehicleRepository;
 
     public AdminServiceImpl(DriverRepository driverRepository,
                             UserRepository userRepository,
                             RideRepository rideRepository,
                             PaymentRepository paymentRepository,
-                            RatingRepository ratingRepository) {
+                            RatingRepository ratingRepository,
+                            DriverLocationRepository driverLocationRepository,
+                            VehicleRepository vehicleRepository) {
         this.driverRepository = driverRepository;
         this.userRepository = userRepository;
         this.rideRepository = rideRepository;
         this.paymentRepository = paymentRepository;
-        this.ratingRepository= ratingRepository;
+        this.ratingRepository = ratingRepository;
+        this.vehicleRepository =  vehicleRepository;
+        this.driverLocationRepository =  driverLocationRepository;
     }
 
     @Override
@@ -113,85 +121,152 @@ public class AdminServiceImpl implements IAdminService {
     }
 
     @Override
-@Transactional
-public User updateUser(Long userId, UserUpdateRequest request) {
-    if (request == null) {
-        throw new BadRequestException("User update request is required.");
-    }
-
-    User user = userRepository.findByUserId(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
-
-    if (request.getName() != null && !request.getName().isBlank()) {
-        user.setName(request.getName());
-    }
-    if (request.getPhone() != null && !request.getPhone().isBlank()) {
-        user.setPhone(request.getPhone());
-    }
-    if (request.getEmail() != null && !request.getEmail().isBlank()) {
-        user.setEmail(request.getEmail());
-    }
-    if (request.getRole() != null) {
-        user.setRole(request.getRole());
-    }
-    if (request.getIsVerified() != null) {
-        user.setIsVerified(request.getIsVerified());
-    }
-
-    return userRepository.saveUser(user);
-}
-
-    @Override
     @Transactional
-    public void deleteUser(Long userId) {
+    public User updateUser(Long userId, UserUpdateRequest request) {
+        if (request == null) {
+            throw new BadRequestException("User update request is required.");
+        }
+
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
 
-        List<Ride> userRides = rideRepository.findByPassenger_Id(userId);
-
-        boolean hasActiveRide = userRides.stream().anyMatch(ride ->
-                ride.getStatus() == RideStatus.REQUESTED ||
-                ride.getStatus() == RideStatus.ACCEPTED ||
-                ride.getStatus() == RideStatus.ASSIGNED ||
-                ride.getStatus() == RideStatus.IN_PROGRESS);
-
-        if (hasActiveRide) {
-            throw new BadRequestException("User cannot be deleted because the user has an active ride.");
+        if (request.getName() != null && !request.getName().isBlank()) {
+            user.setName(request.getName());
+        }
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            user.setPhone(request.getPhone());
+        }
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getRole() != null) {
+            user.setRole(request.getRole());
+        }
+        if (request.getIsVerified() != null) {
+            user.setIsVerified(request.getIsVerified());
         }
 
-        boolean hasIncompleteRide = userRides.stream().anyMatch(ride ->
-                ride.getStatus() != RideStatus.COMPLETED &&
-                ride.getStatus() != RideStatus.CANCELLED);
+        return userRepository.saveUser(user);
+    }
 
-        if (hasIncompleteRide) {
-            throw new BadRequestException("User cannot be deleted because the user has rides that are not completed or cancelled.");
+    @Override
+@Transactional
+public void deleteUser(Long userId) {
+
+    User user = userRepository.findByUserId(userId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("User not found with id " + userId));
+
+    // ============================
+    // Passenger Rides
+    // ============================
+
+    List<Ride> userRides = rideRepository.findByPassenger_Id(userId);
+
+    boolean hasActiveRide = userRides.stream().anyMatch(ride ->
+            ride.getStatus() == RideStatus.REQUESTED ||
+            ride.getStatus() == RideStatus.ACCEPTED ||
+            ride.getStatus() == RideStatus.ASSIGNED ||
+            ride.getStatus() == RideStatus.IN_PROGRESS);
+
+    if (hasActiveRide) {
+        throw new BadRequestException(
+                "User cannot be deleted because the user has an active ride.");
+    }
+
+    boolean hasIncompleteRide = userRides.stream().anyMatch(ride ->
+            ride.getStatus() != RideStatus.COMPLETED &&
+            ride.getStatus() != RideStatus.CANCELLED);
+
+    if (hasIncompleteRide) {
+        throw new BadRequestException(
+                "User cannot be deleted because the user has incomplete rides.");
+    }
+
+    boolean hasPendingPayment = paymentRepository.findByRidePassengerId(userId)
+            .stream()
+            .anyMatch(payment ->
+                    payment.getPaymentStatus() == PaymentStatus.PENDING);
+
+    if (hasPendingPayment) {
+        throw new BadRequestException(
+                "User cannot be deleted because pending payments exist.");
+    }
+
+    // ============================
+    // Delete Passenger Rides
+    // ============================
+
+    for (Ride ride : userRides) {
+
+        if (ride.getPayment() != null) {
+            paymentRepository.delete(ride.getPayment());
         }
 
-        boolean hasPendingPayment = paymentRepository.findByRidePassengerId(userId).stream()
-                .anyMatch(payment -> payment.getPaymentStatus() == PaymentStatus.PENDING);
-
-        if (hasPendingPayment) {
-            throw new BadRequestException("User cannot be deleted because the user has pending payments.");
+        if (ride.getRating() != null) {
+            ratingRepository.delete(ride.getRating());
         }
 
-        // Ratings are optional and do not block deletion.
-        for (Ride ride : userRides) {
+        rideRepository.delete(ride);
+    }
+
+    // ============================
+    // Delete Passenger Ratings
+    // ============================
+
+    ratingRepository.findAllByPassenger_Id(userId)
+            .forEach(ratingRepository::delete);
+
+    // ============================
+    // Delete Driver (if user is driver)
+    // ============================
+
+    if (user.getDriver() != null) {
+
+        Driver driver = user.getDriver();
+
+        // Delete rides assigned to driver
+        List<Ride> driverRides = rideRepository.findByDriver_Id(driver.getId());
+
+        for (Ride ride : driverRides) {
+
             if (ride.getPayment() != null) {
                 paymentRepository.delete(ride.getPayment());
             }
+
             if (ride.getRating() != null) {
                 ratingRepository.delete(ride.getRating());
             }
+
             rideRepository.delete(ride);
         }
 
-        List<Rating> passengerRatings = ratingRepository.findAllByPassenger_Id(userId);
-        for (Rating rating : passengerRatings) {
-            ratingRepository.delete(rating);
-        }
+        // Delete ratings received by driver
+        ratingRepository.findAllByDriver_Id(driver.getId())
+                .forEach(ratingRepository::delete);
 
-        userRepository.delete(user);
+        // Delete vehicles
+        vehicleRepository.deleteByDriver_Id(driver.getId());
+
+        // Delete driver location
+        driverLocationRepository.deleteByDriver_Id(driver.getId());
+
+        // Break User <-> Driver relationship
+        user.setDriver(null);
+        driver.setUser(null);
+
+        userRepository.saveUser(user);
+
+        // Delete driver
+        driverRepository.delete(driver);
     }
+
+    // ============================
+    // Finally Delete User
+    // ============================
+
+    userRepository.delete(user);
+}
 
     @Override
     @Transactional
@@ -305,80 +380,80 @@ public User updateUser(Long userId, UserUpdateRequest request) {
                 .orElseThrow(() -> new ResourceNotFoundException("Driver not found with id " + driverId));
     }
 
-	@Override
-	public Map<String, Object> getDashboardStats() {
-		long totalUsers = userRepository.count();
-	    long totalDrivers = driverRepository.count();
-	    long totalBookings = rideRepository.count();
+    @Override
+    public Map<String, Object> getDashboardStats() {
+        long totalUsers = userRepository.count();
+        long totalDrivers = driverRepository.count();
+        long totalBookings = rideRepository.count();
 
-	    double totalRevenue = paymentRepository.findAllPayments().stream()
-	            .filter(payment -> payment.getPaymentStatus() == PaymentStatus.SUCCESS)
-	            .mapToDouble(Payment::getAmount)
-	            .sum();
+        double totalRevenue = paymentRepository.findAllPayments().stream()
+                .filter(payment -> payment.getPaymentStatus() == PaymentStatus.SUCCESS)
+                .mapToDouble(Payment::getAmount)
+                .sum();
 
-	    List<Ride> recentRides = rideRepository.findAllRides().stream()
-	            .sorted(Comparator.comparing(
-	                    Ride::getCreatedAt,
-	                    Comparator.nullsLast(Comparator.reverseOrder())
-	            ))
-	            .limit(5)
-	            .toList();
+        List<Ride> recentRides = rideRepository.findAllRides().stream()
+                .sorted(Comparator.comparing(
+                        Ride::getCreatedAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
+                .limit(5)
+                .toList();
 
-	    List<Map<String, Object>> recentBookings = recentRides.stream().map(ride -> {
-	        Map<String, Object> booking = new LinkedHashMap<>();
-	        booking.put("bookingId", ride.getId());
-	        booking.put("passengerName", ride.getPassenger() != null ? ride.getPassenger().getName() : null);
-	        booking.put("driverName", ride.getDriver() != null && ride.getDriver().getUser() != null
-	                ? ride.getDriver().getUser().getName() : null);
-	        booking.put("fare", ride.getFare());
-	        booking.put("status", ride.getStatus() == RideStatus.COMPLETED
-	                ? "COMPLETED"
-	                : ride.getStatus() == RideStatus.CANCELLED
-	                    ? "CANCELLED"
-	                    : "PENDING");
-	        return booking;
-	    }).toList();
+        List<Map<String, Object>> recentBookings = recentRides.stream().map(ride -> {
+            Map<String, Object> booking = new LinkedHashMap<>();
+            booking.put("bookingId", ride.getId());
+            booking.put("passengerName", ride.getPassenger() != null ? ride.getPassenger().getName() : null);
+            booking.put("driverName", ride.getDriver() != null && ride.getDriver().getUser() != null
+                    ? ride.getDriver().getUser().getName() : null);
+            booking.put("fare", ride.getFare());
+            booking.put("status", ride.getStatus() == RideStatus.COMPLETED
+                    ? "COMPLETED"
+                    : ride.getStatus() == RideStatus.CANCELLED
+                        ? "CANCELLED"
+                        : "PENDING");
+            return booking;
+        }).toList();
 
-	    List<Driver> activeDriversList = driverRepository.findAll().stream()
-	            .filter(driver -> driver.getStatus() == DriverStatus.APPROVED
-	                    && Boolean.TRUE.equals(driver.getAvailability()))
-	            .limit(5)
-	            .toList();
+        List<Driver> activeDriversList = driverRepository.findAll().stream()
+                .filter(driver -> driver.getStatus() == DriverStatus.APPROVED
+                        && Boolean.TRUE.equals(driver.getAvailability()))
+                .limit(5)
+                .toList();
 
-	    List<Map<String, Object>> activeDrivers = activeDriversList.stream().map(driver -> {
-	        Map<String, Object> item = new LinkedHashMap<>();
-	        item.put("driverId", driver.getId());
-	        item.put("name", driver.getUser() != null ? driver.getUser().getName() : null);
-	        return item;
-	    }).toList();
+        List<Map<String, Object>> activeDrivers = activeDriversList.stream().map(driver -> {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("driverId", driver.getId());
+            item.put("name", driver.getUser() != null ? driver.getUser().getName() : null);
+            return item;
+        }).toList();
 
-	    List<Driver> pendingDriversList = driverRepository.findAll().stream()
-	            .filter(driver -> driver.getStatus() == DriverStatus.PENDING)
-	            .limit(3)
-	            .toList();
+        List<Driver> pendingDriversList = driverRepository.findAll().stream()
+                .filter(driver -> driver.getStatus() == DriverStatus.PENDING)
+                .limit(3)
+                .toList();
 
-	    List<Map<String, Object>> pendingDrivers = pendingDriversList.stream().map(driver -> {
-	        Map<String, Object> item = new LinkedHashMap<>();
-	        item.put("driverId", driver.getId());
-	        item.put("name", driver.getUser() != null ? driver.getUser().getName() : null);
-	        return item;
-	    }).toList();
+        List<Map<String, Object>> pendingDrivers = pendingDriversList.stream().map(driver -> {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("driverId", driver.getId());
+            item.put("name", driver.getUser() != null ? driver.getUser().getName() : null);
+            return item;
+        }).toList();
 
-	    Map<String, Object> dashboardData = new LinkedHashMap<>();
-	    dashboardData.put("totalUsers", totalUsers);
-	    dashboardData.put("totalDrivers", totalDrivers);
-	    dashboardData.put("totalBookings", totalBookings);
-	    dashboardData.put("totalRevenue", totalRevenue);
-	    dashboardData.put("recentBookings", recentBookings);
-	    dashboardData.put("activeDrivers", activeDrivers);
-	    dashboardData.put("pendingDrivers", pendingDrivers);
+        Map<String, Object> dashboardData = new LinkedHashMap<>();
+        dashboardData.put("totalUsers", totalUsers);
+        dashboardData.put("totalDrivers", totalDrivers);
+        dashboardData.put("totalBookings", totalBookings);
+        dashboardData.put("totalRevenue", totalRevenue);
+        dashboardData.put("recentBookings", recentBookings);
+        dashboardData.put("activeDrivers", activeDrivers);
+        dashboardData.put("pendingDrivers", pendingDrivers);
 
-	    return dashboardData;
-	}
+        return dashboardData;
+    }
 
-	@Override
-	@Transactional(readOnly = true)
-	public List<Driver> getAllDrivers() {
-		return driverRepository.findAll();	
-	}
+    @Override
+    @Transactional(readOnly = true)
+    public List<Driver> getAllDrivers() {
+        return driverRepository.findAll();
+    }
 }
