@@ -38,7 +38,7 @@ const DriverTable = ({
       case "PENDING":
         return "bg-yellow-100 text-yellow-700";
 
-      case "REJECTED":
+      case "BLOCK":
         return "bg-red-100 text-red-700";
 
       case "SUSPENDED":
@@ -141,7 +141,7 @@ const DriverTable = ({
                     <button
                       onClick={() => onReject(driver.id)}
                       className="bg-red-500 hover:bg-red-600 text-white p-2 rounded"
-                      title="Reject"
+                      title="BLOCK"
                     >
                       <XCircle size={17} />
                     </button>
@@ -149,7 +149,7 @@ const DriverTable = ({
                     <button
                       onClick={() => onSuspend(driver.id)}
                       className="bg-gray-700 hover:bg-gray-800 text-white p-2 rounded"
-                      title="Suspend"
+                      title="PENDING"
                     >
                       <Ban size={17} />
                     </button>
