@@ -375,4 +375,10 @@ public User updateUser(Long userId, UserUpdateRequest request) {
 
 	    return dashboardData;
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<Driver> getAllDrivers() {
+		return driverRepository.findAll();	
+	}
 }

@@ -1,7 +1,5 @@
 package com.cabbooking.dto;
 
-import com.cabbooking.enums.DriverStatus;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,12 +9,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DriverAdminResponseDto {
 
-    private Long id;
-    private Long userId;
-    private String userName;
+    private Long driverId;
+    private String name;
+    private String email;
+    private String phone;
     private String licenseNumber;
-    private DriverStatus status;
-    private Boolean availability;
+    private String vehicleNumber;
+    private String vehicleType;
     private Double rating;
     private Integer totalRides;
+    private Boolean availability;
+    private String status;
 }
