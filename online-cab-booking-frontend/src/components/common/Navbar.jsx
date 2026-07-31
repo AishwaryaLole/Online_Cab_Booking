@@ -1,97 +1,48 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CarFront, LogIn, UserPlus, LayoutDashboard, LogOut } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
+import { Moon, Sun } from "lucide-react";
 
-function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth();
-
-  const dashboardLink = () => {
-    if (!user) return "/";
-
-    switch (user.role) {
-      case "ADMIN":
-        return "/admin";
-
-      case "DRIVER":
-        return "/driver";
-
-      default:
-        return "/passenger";
-    }
-  };
+export default function Navbar() {
+  const [isDark, setIsDark] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-white shadow border-b">
+    <nav className="flex items-center justify-between px-8 py-4 border-b border-gray-100">
+      {/* Logo */}
+      <Link to="/" className="flex items-center gap-2">
+        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+          Car
+        </div>
+        <span className="text-xl font-bold text-gray-900">CarGo..</span>
+      </Link>
 
-      <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
-
-        <Link
-          to="/"
-          className="flex items-center gap-2 text-blue-600 text-2xl font-bold"
-        >
-          <CarFront size={30} />
-          RideEasy
-        </Link>
-
-        {!isAuthenticated ? (
-          <>
-            <nav className="hidden md:flex gap-8 font-medium text-gray-700">
-              <Link to="/">Home</Link>
-              <a href="#about">About</a>
-              <a href="#services">Services</a>
-              <a href="#contact">Contact</a>
-            </nav>
-
-            <div className="flex gap-3">
-
-              <Link
-                to="/login"
-                className="flex items-center gap-2 border border-blue-600 px-4 py-2 rounded-lg text-blue-600 hover:bg-blue-50"
-              >
-                <LogIn size={18} />
-                Login
-              </Link>
-
-              <Link
-                to="/register/passenger"
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-              >
-                <UserPlus size={18} />
-                Register
-              </Link>
-
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center gap-4">
-
-            <span className="font-medium">
-              Welcome, {user?.name}
-            </span>
-
-            <Link
-              to={dashboardLink()}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg"
-            >
-              <LayoutDashboard size={18} />
-              Dashboard
-            </Link>
-
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg"
-            >
-              <LogOut size={18} />
-              Logout
-            </button>
-
-          </div>
-        )}
-
+      {/* Nav Links (hidden on mobile, shown on md+) */}
+      <div className="hidden md:flex items-center gap-8 text-gray-600 font-medium">
+        <Link to="/" className="text-indigo-600">Home</Link>
+        <a href="#features" className="hover:text-indigo-600">Features</a>
+        <a href="#services" className="hover:text-indigo-600">Services</a>
+        <a href="#testimonials" className="hover:text-indigo-600">Review</a>
       </div>
 
-    </header>
+      {/* Right side actions */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={() => setIsDark(!isDark)}
+          className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50"
+        >
+          {isDark ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
+        <Link to="/login" className="text-gray-700 font-medium hover:text-indigo-600">
+          Login
+        </Link>
+
+        <Link
+          to="/register/passenger"
+          className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-5 py-2 rounded-full font-medium hover:opacity-90 transition"
+        >
+          Get Started
+        </Link>
+      </div>
+    </nav>
   );
 }
-
-export default Navbar;
