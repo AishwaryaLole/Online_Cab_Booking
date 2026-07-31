@@ -1,38 +1,54 @@
-import { Routes, Route } from "react-router-dom";
-
-// Layouts
-import MainLayout from "../layouts/MainLayout";
-
-
-// Admin Pages
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { AuthProvider } from "../context/AuthContext";
 
 
+import Landing from "../pages/Landing";
+import Login from "../pages/auth/Login";
+import PassengerRegister from "../pages/auth/PassengerRegister";
+import DriverRegister from "../pages/auth/DriverRegister";
+import AdminRegister from "../pages/auth/AdminRegister";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
+
+import PrivateRoute from "./PrivateRoute";
+import RoleRoute from "./RoleRoute";
+
+ 
 
 
-import AdminLayout from "../layouts/AdminLayout";
-import Dashboard from "../pages/admin/Dashboard";
-import DriverList from "../pages/admin/drivers/DriverList";
-import BookingList from "../pages/admin/bookings/BookingList";
-import BookingReport from "../pages/admin/reports/BookingReport";
-import RevenueReport from "../pages/admin/reports/RevenueReport";
-import DriverReport from "../pages/admin/reports/DriverReport";
-import PassengerReport from "../pages/admin/reports/PassengerReport";
-import UserList from "../pages/admin/users/UserList";
+export default function AppRoutes() {
 
-
-function AppRoutes() {
   return (
-    <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <ToastContainer position="top-right" autoClose={3000} />
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register/passenger" element={<PassengerRegister />} />
+          <Route path="/register/driver" element={<DriverRegister />} />
+          <Route path="/register/admin" element={<AdminRegister />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Teammates: wrap dashboard routes like this once their pages exist
+          <Route element={<PrivateRoute />}>
+            <Route element={<RoleRoute allowedRoles={["PASSENGER"]} />}>
+              <Route path="/passenger/dashboard" element={<PassengerDashboard />} />
+            </Route>
+          </Route>
+          */}
+          <Routes>
+
+            /*----- Admin -------*/
 
       {/* Public Routes */}
       <Route element={<MainLayout />}></Route>
-
        {/* Admin Routes */}
       <Route path="/admin" element={<AdminLayout/>}>
         <Route index element={<Dashboard/>} />
-     
-     
-
       {/* Users */}
 
           <Route
@@ -77,13 +93,16 @@ function AppRoutes() {
           />
 
         </Route>
-
-        
-
-    
-
     </Routes>
+
+    /* ---- driver ------- */
+
+
+    /* ------- pasanger  -------- */
+
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+
   );
 }
-
-export default AppRoutes;
