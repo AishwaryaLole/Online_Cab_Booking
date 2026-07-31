@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cabbooking.dto.ApiResponse;
 import com.cabbooking.dto.DriverAdminResponseDto;
+import com.cabbooking.dto.DriverReportDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
+import com.cabbooking.dto.RevenueReportDto;
 import com.cabbooking.dto.RideAdminResponseDto;
 import com.cabbooking.dto.RideCancellationRequest;
 import com.cabbooking.dto.UserAdminResponseDto;
@@ -120,15 +122,21 @@ public class AdminController {
     }
 
     @GetMapping("/reports/revenue")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getRevenueReport() {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Revenue report generated.",
-                adminService.getRevenueReport()));
+    public ResponseEntity<ApiResponse<RevenueReportDto>> getRevenueReport() {
+
+        RevenueReportDto report = adminService.getRevenueReport();
+        
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Revenue report fetched successfully",
+        		report));
     }
 
     @GetMapping("/reports/drivers")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getDriverReport() {
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver report generated.",
-                adminService.getDriverReport()));
+    public ResponseEntity<ApiResponse<DriverReportDto>> getDriverReport() {
+
+        DriverReportDto report = adminService.getDriverReport();
+
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Revenue report fetched successfully",
+        		report));
     }
 
     @GetMapping("/dashboard")
