@@ -136,13 +136,14 @@ const UserList = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow">
-        {filteredUsers.length > 0 ? (
-          filteredUsers.map((user) => (
-            <div
-              key={user.id}
-              className="p-4 border-b last:border-b-0 flex items-center justify-between gap-4"
-            >
+          <div className="space-y-3">
+      {filteredUsers.length > 0 ? (
+        filteredUsers.map((user) => (
+          <div
+            key={user.id}
+            className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+          >
+            <div className="flex items-center justify-between gap-4">
               <button
                 type="button"
                 onClick={() => openUserModal(user)}
@@ -151,6 +152,9 @@ const UserList = () => {
                 <h3 className="font-semibold">{user.name}</h3>
                 <p>{user.email}</p>
                 <p>{user.phone}</p>
+                <p className="text-sm text-gray-500">
+                  Role: <span className="font-medium">{user.role || "User"}</span>
+                </p>
               </button>
 
               <button
@@ -162,11 +166,12 @@ const UserList = () => {
                 Delete
               </button>
             </div>
-          ))
-        ) : (
-          <p className="p-4 text-gray-500">No users found.</p>
-        )}
-      </div>
+          </div>
+        ))
+      ) : (
+        <p className="p-4 text-gray-500">No users found.</p>
+      )}
+    </div>
 
       {isDeleteModalOpen && selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 overflow-y-auto">
