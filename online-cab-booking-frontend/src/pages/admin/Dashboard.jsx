@@ -3,7 +3,7 @@ import {
   Users,
   Car,
   CalendarCheck,
-  DollarSign,
+  IndianRupee ,
 } from "lucide-react";
 
 import StatCard from "../../components/admin/dashboard/StatCard";
@@ -103,8 +103,8 @@ const Dashboard = () => {
 
         <StatCard
           title="Total Revenue"
-          value={`₹${stats.totalRevenue}`}
-          icon={<DollarSign size={28} />}
+          value={`₹ ${stats.totalRevenue}`}
+          icon={<IndianRupee  size={28} />}
           color="bg-purple-500"
         />
       </div>
