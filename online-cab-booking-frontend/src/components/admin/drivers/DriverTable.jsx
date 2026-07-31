@@ -38,7 +38,7 @@ const DriverTable = ({
       case "PENDING":
         return "bg-yellow-100 text-yellow-700";
 
-      case "BLOCK":
+      case "BLOCKED":
         return "bg-red-100 text-red-700";
 
       case "SUSPENDED":
