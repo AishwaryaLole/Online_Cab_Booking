@@ -3,6 +3,7 @@ package com.cabbooking.services;
 import java.util.List;
 import java.util.Map;
 
+import com.cabbooking.dto.BookingAdminResponseDto;
 import com.cabbooking.dto.DriverReportDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
 import com.cabbooking.dto.RevenueReportDto;
@@ -40,4 +41,6 @@ public interface IAdminService {
     Map<String, Object> getDashboardStats();
     
     List<Driver> getAllDrivers();
+    
+    List<BookingAdminResponseDto> getAllBookings();
 }
