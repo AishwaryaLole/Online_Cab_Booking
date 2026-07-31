@@ -14,6 +14,12 @@ const AdminNavbar = ({ sidebarOpen, setSidebarOpen }) => {
     .split("/")
     .filter((item) => item);
 
+  const pageTitle = pathnames.length
+  ? pathnames[pathnames.length - 1]
+      .replace("-", " ")
+      .replace(/\b\w/g, c => c.toUpperCase())
+  : "Dashboard";
+
   return (
     <>
       <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
@@ -30,8 +36,13 @@ const AdminNavbar = ({ sidebarOpen, setSidebarOpen }) => {
           </button>
 
           {/* Search */}
-          <div className="hidden md:flex items-center rounded-lg px-3 py-2 w-72">
-            <h1 className="font-bold">Welcome Admin</h1>
+          <div>
+            <h1 className="font-bold text-lg">
+              {pageTitle}
+            </h1>
+            <p className="text-xs text-gray-500">
+              Admin Control Panel
+            </p>
           </div>
         </div>
 
