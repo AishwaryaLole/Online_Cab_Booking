@@ -62,12 +62,12 @@ const DriverList = () => {
   const rejectDriver = async (id) => {
     try {
       await adminService.rejectDriver(id);
-      toast.success("Reject successfully.");
+      toast.success("Block successfully.");
 
       setDrivers((prev) =>
         prev.map((driver) =>
           driver.id === id
-            ? { ...driver, status: "REJECTED" }
+            ? { ...driver, status: "BLOCK" }
             : driver
         )
       );
@@ -80,12 +80,12 @@ const DriverList = () => {
   const suspendDriver = async (id) => {
     try {
       await adminService.suspendDriver(id);
-      toast.success("Suspend successfully.");
+      toast.success("Pending successfully.");
 
       setDrivers((prev) =>
         prev.map((driver) =>
           driver.id === id
-            ? { ...driver, status: "SUSPENDED" }
+            ? { ...driver, status: "PENDING" }
             : driver
         )
       );

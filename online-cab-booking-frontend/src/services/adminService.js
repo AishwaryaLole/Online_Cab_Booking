@@ -80,10 +80,10 @@ const adminService = {
   API.put(`/admins/drivers/${id}/status`, { status: "APPROVED" }),
 
 rejectDriver: (id) =>
-  API.put(`/admins/drivers/${id}/status`, { status: "PENDING" }),
+  API.put(`/admins/drivers/${id}/status`, { status: "BLOCKED" }),
 
 suspendDriver: (id) =>
-  API.put(`/admins/drivers/${id}/status`, { status: "BLOCKED" }),
+  API.put(`/admins/drivers/${id}/status`, { status: "PENDING" }),
 
   // =====================================
   // Bookings
