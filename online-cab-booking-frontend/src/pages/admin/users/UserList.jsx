@@ -142,13 +142,26 @@ const UserList = () => {
         filteredUsers.map((user) => (
           <div
             key={user.id}
-            className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer"
+            className="group relative p-4 border border-gray-200 rounded-lg
+                      shadow-sm hover:shadow-md hover:-translate-y-1
+                      transition-all duration-200 cursor-pointer"
           >
-            <div className="flex items-center justify-between gap-4">
+            {/* Tooltip */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2 -top-12
+                        z-[9999] opacity-0 group-hover:opacity-100
+                        transition-opacity duration-200 pointer-events-none"
+            >
+              <div className="bg-gray-400 text-white text-xs px-3 py-2 rounded-lg shadow-lg">
+                Click to edit
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-4 cursor-pointer">
               <button
                 type="button"
                 onClick={() => openUserModal(user)}
-                className="flex-1 text-left"
+                className="flex-1 text-left  cursor-pointer"
+                
               >
                 <h3 className="font-semibold">{user.name}</h3>
                 <p>{user.email}</p>
@@ -161,7 +174,7 @@ const UserList = () => {
               <button
                 type="button"
                 onClick={() => openDeleteModal(user)}
-                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg"
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg cursor-pointer"
               >
                 <Trash2 size={18} />
                 Delete
