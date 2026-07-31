@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Car,
   CheckCircle,
@@ -10,8 +11,17 @@ import adminService from "../../../services/adminService";
 
 const DriverReport = () => {
   const [drivers, setDrivers] = useState([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+const navigate = useNavigate();
+const [summary, setSummary] = useState({
+  totalDrivers: 0,
+  approvedDrivers: 0,
+  pendingDrivers: 0,
+  suspendedDrivers: 0,
+});
+
+const [search, setSearch] = useState("");
+
+const [loading, setLoading] = useState(true);
 
   useEffect(() => {
      async function loadDrivers() {
@@ -20,7 +30,16 @@ const DriverReport = () => {
 
       const response = await adminService.getDriverReport();
 
-      setDrivers(response.data || response);
+setDrivers(response.data.data.drivers || []);
+
+setSummary(
+  response.data.data.summary || {
+    totalDrivers: 0,
+    approvedDrivers: 0,
+    pendingDrivers: 0,
+    suspendedDrivers: 0,
+  }
+);
     } catch (error) {
       console.error(error);
     } finally {
@@ -44,20 +63,6 @@ const DriverReport = () => {
     });
   }, [drivers, search]);
 
-  const totalDrivers = drivers.length;
-
-  const approvedDrivers = drivers.filter(
-    (driver) => driver.status === "APPROVED"
-  ).length;
-
-  const pendingDrivers = drivers.filter(
-    (driver) => driver.status === "PENDING"
-  ).length;
-
-  const suspendedDrivers = drivers.filter(
-    (driver) => driver.status === "SUSPENDED"
-  ).length;
-
   if (loading) {
     return (
       <div className="text-center py-10">
@@ -71,8 +76,9 @@ const DriverReport = () => {
 
       {/* Heading */}
 
-      <div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
+      <div>
         <h1 className="text-3xl font-bold">
           Driver Report
         </h1>
@@ -80,8 +86,36 @@ const DriverReport = () => {
         <p className="text-gray-500">
           Driver performance and approval summary
         </p>
+      </div>
+
+      <div>
+
+        <select
+          value="/admin/reports/drivers"
+          onChange={(e) => navigate(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2
+                    bg-white shadow-sm
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500"
+        >
+          <option value="/admin/reports/bookings">
+            📖 Booking Report
+          </option>
+
+          <option value="/admin/reports/drivers">
+            🚖 Driver Report
+          </option>
+
+          <option value="/admin/reports/revenue">
+            💰 Revenue Report
+          </option>
+
+        </select>
 
       </div>
+
+    </div>
 
       {/* Summary Cards */}
 
@@ -96,7 +130,7 @@ const DriverReport = () => {
           </h3>
 
           <p className="text-3xl font-bold">
-            {totalDrivers}
+            {summary.totalDrivers}
           </p>
 
         </div>
@@ -110,7 +144,7 @@ const DriverReport = () => {
           </h3>
 
           <p className="text-3xl font-bold">
-            {approvedDrivers}
+            {summary.approvedDrivers}
           </p>
 
         </div>
@@ -124,7 +158,7 @@ const DriverReport = () => {
           </h3>
 
           <p className="text-3xl font-bold">
-            {pendingDrivers}
+            {summary.pendingDrivers}
           </p>
 
         </div>
@@ -138,7 +172,7 @@ const DriverReport = () => {
           </h3>
 
           <p className="text-3xl font-bold">
-            {suspendedDrivers}
+           {summary.suspendedDrivers}
           </p>
 
         </div>
@@ -201,12 +235,14 @@ const DriverReport = () => {
 
             <tbody>
 
-              {filteredDrivers.map((driver) => (
+                {filteredDrivers.length > 0 ? (
 
-                <tr
-                  key={driver.id}
-                  className="border-b hover:bg-gray-50"
-                >
+                  filteredDrivers.map((driver) => (
+
+                    <tr
+                      key={driver.id}
+                      className="border-b hover:bg-gray-50"
+                    >
 
                   <td className="px-4 py-3 font-medium">
                     {driver.name}
@@ -247,9 +283,24 @@ const DriverReport = () => {
 
                 </tr>
 
-              ))}
+              ))    
 
-            </tbody>
+  ) : (
+
+    <tr>
+
+      <td
+        colSpan="6"
+        className="text-center py-6 text-gray-500"
+      >
+        No Drivers Found
+      </td>
+
+    </tr>
+
+  )}
+
+</tbody>
 
           </table>
 
