@@ -24,6 +24,7 @@ import com.cabbooking.dto.UserUpdateRequest;
 import com.cabbooking.entities.Driver;
 import com.cabbooking.entities.Ride;
 import com.cabbooking.entities.User;
+import com.cabbooking.entities.Vehicle;
 import com.cabbooking.services.IAdminService;
 
 import jakarta.validation.Valid;
@@ -71,6 +72,16 @@ public class AdminController {
                 .toList();
 
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Users fetched successfully.", users));
+    }
+    
+    @GetMapping("/drivers")
+    public ResponseEntity<ApiResponse<List<DriverAdminResponseDto>>> getAllDrivers() {
+        List<DriverAdminResponseDto> drivers = adminService.getAllDrivers()
+                .stream()
+                .map(this::toDriverAdminResponseDto)
+                .toList();
+
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Drivers fetched successfully.", drivers));
     }
 
     @GetMapping("/users/{userId}")
@@ -131,18 +142,27 @@ public class AdminController {
     }
 
     private DriverAdminResponseDto toDriverAdminResponseDto(Driver driver) {
-        Long userId = driver.getUser() != null ? driver.getUser().getId() : null;
-        String userName = driver.getUser() != null ? driver.getUser().getName() : null;
+        String vehicleNumber = null;
+        String vehicleType = null;
+
+        if (driver.getVehicles() != null && !driver.getVehicles().isEmpty()) {
+            Vehicle vehicle = driver.getVehicles().get(0);
+            vehicleNumber = vehicle.getVehicleNumber();
+            vehicleType = vehicle.getVehicleType();
+        }
 
         return new DriverAdminResponseDto(
                 driver.getId(),
-                userId,
-                userName,
+                driver.getUser() != null ? driver.getUser().getName() : null,
+                driver.getUser() != null ? driver.getUser().getEmail() : null,
+                driver.getUser() != null ? driver.getUser().getPhone() : null,
                 driver.getLicenseNumber(),
-                driver.getStatus(),
-                driver.getAvailability(),
+                vehicleNumber,
+                vehicleType,
                 driver.getRating(),
-                driver.getTotalRides()
+                driver.getTotalRides(),
+                driver.getAvailability(),
+                driver.getStatus() != null ? driver.getStatus().name() : null
         );
     }
 
@@ -175,4 +195,29 @@ public class AdminController {
                 ride.getUpdatedAt()
         );
     }
+
+    private DriverAdminResponseDto toDriverAdminResponseDt(Driver driver) {
+    String vehicleNumber = null;
+    String vehicleType = null;
+
+    if (driver.getVehicles() != null && !driver.getVehicles().isEmpty()) {
+        Vehicle vehicle = driver.getVehicles().get(0);
+        vehicleNumber = vehicle.getVehicleNumber();
+        vehicleType = vehicle.getVehicleType();
+    }
+
+    return new DriverAdminResponseDto(
+            driver.getId(),
+            driver.getUser() != null ? driver.getUser().getName() : null,
+            driver.getUser() != null ? driver.getUser().getEmail() : null,
+            driver.getUser() != null ? driver.getUser().getPhone() : null,
+            driver.getLicenseNumber(),
+            vehicleNumber,
+            vehicleType,
+            driver.getRating(),
+            driver.getTotalRides(),
+            driver.getAvailability(),
+            driver.getStatus() != null ? driver.getStatus().name() : null
+    );
+}
 }

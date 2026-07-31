@@ -14,15 +14,20 @@ const DriverList = () => {
 
   const [error, setError] = useState("");
 
-  useEffect(() => {
-     async function loadDrivers() {
+ useEffect(() => {
+  async function loadDrivers() {
     try {
       setLoading(true);
 
       const response = await adminService.getDrivers();
+      const driversData = response?.data?.data || response?.data || response || [];
 
-      setDrivers(response.data || response);
+      const normalizedDrivers = (Array.isArray(driversData) ? driversData : []).map((driver) => ({
+        ...driver,
+        id: driver.id ?? driver.driverId,
+      }));
 
+      setDrivers(normalizedDrivers);
       setError("");
     } catch (err) {
       console.error(err);
@@ -30,11 +35,10 @@ const DriverList = () => {
     } finally {
       setLoading(false);
     }
-  };
-    loadDrivers();
-  }, []);
+  }
 
- 
+  loadDrivers();
+}, []);
 
   const approveDriver = async (id) => {
     try {
