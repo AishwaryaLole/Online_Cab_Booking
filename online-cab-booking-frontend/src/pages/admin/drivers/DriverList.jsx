@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import adminService from "../../../services/adminService";
 import DriverTable from "../../../components/admin/drivers/DriverTable";
 import DriverModal from "../../../components/admin/drivers/DriverModel";
@@ -43,6 +44,7 @@ const DriverList = () => {
   const approveDriver = async (id) => {
     try {
       await adminService.approveDriver(id);
+      toast.success("Approved successfully.");
 
       setDrivers((prev) =>
         prev.map((driver) =>
@@ -53,13 +55,14 @@ const DriverList = () => {
       );
     } catch (err) {
         console.error(err)
-      alert("Unable to approve driver.");
+      toast.error("Error during Approve");
     }
   };
 
   const rejectDriver = async (id) => {
     try {
       await adminService.rejectDriver(id);
+      toast.success("Reject successfully.");
 
       setDrivers((prev) =>
         prev.map((driver) =>
@@ -70,13 +73,14 @@ const DriverList = () => {
       );
     } catch (err) {
        console.error(err)
-      alert("Unable to reject driver.");
+      toast.error("Error during Reject");
     }
   };
 
   const suspendDriver = async (id) => {
     try {
       await adminService.suspendDriver(id);
+      toast.success("Suspend successfully.");
 
       setDrivers((prev) =>
         prev.map((driver) =>
@@ -87,7 +91,7 @@ const DriverList = () => {
       );
     } catch (err) {
       console.error(err)
-      alert("Unable to suspend driver.");
+      toast.error("Error during Suspending");
     }
   };
 
