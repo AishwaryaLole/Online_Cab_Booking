@@ -36,4 +36,6 @@ public interface IAdminService {
     Map<String, Object> getDriverReport();
     
     Map<String, Object> getDashboardStats();
+    
+    List<Driver> getAllDrivers();
 }
