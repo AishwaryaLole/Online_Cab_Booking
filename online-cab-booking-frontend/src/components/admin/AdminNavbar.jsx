@@ -2,7 +2,6 @@ import { useLocation } from "react-router-dom";
 import {
   Menu,
   Bell,
-  Search,
   UserCircle,
   ChevronRight,
 } from "lucide-react";

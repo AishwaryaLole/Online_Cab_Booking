@@ -104,7 +104,7 @@ const cancelled = reportData.summary.cancelled ?? 0;
                     bg-white shadow-sm
                     focus:outline-none
                     focus:ring-2
-                    focus:ring-blue-500 p-2 rounded-lg"
+                    focus:ring-blue-500 p-2"
         >
           <option value="/admin/reports/bookings">
             📖 Booking Report

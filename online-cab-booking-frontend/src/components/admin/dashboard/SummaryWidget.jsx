@@ -16,6 +16,7 @@ const SummaryWidget = ({ title, items = [] }) => {
   const getStatusBadge = (status) => {
     if (!status) return null;
 
+    // eslint-disable-next-line no-useless-assignment
     let color = "bg-gray-100 text-gray-700";
 
     switch (status.toLowerCase()) {
