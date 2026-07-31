@@ -1,6 +1,7 @@
 package com.cabbooking.services;
 
 import java.time.LocalDateTime;
+
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -16,6 +17,7 @@ import com.cabbooking.dto.RegisterRequest;
 import com.cabbooking.dto.ResetPasswordRequest;
 import com.cabbooking.dto.VerifyOtpRequest;
 import com.cabbooking.entities.OtpVerification;
+import org.springframework.transaction.annotation.Transactional;
 import com.cabbooking.entities.User;
 import com.cabbooking.repository.OtpVerificationRepository;
 import com.cabbooking.repository.UserRepository;
@@ -41,6 +43,7 @@ public class AuthServiceImpl implements AuthServices {
 		
 	}
 	
+	@Transactional
 	@Override
 	public String register(RegisterRequest request) {
 		
@@ -54,30 +57,26 @@ public class AuthServiceImpl implements AuthServices {
 	        return "Phone number already exists";
 	    }
 	    
-         
-		 User user = modelMapper.map(request, User.class);
-		 
-		 user.setPassword(passwordEncoder.encode(request.getPassword()));
+	    User user = modelMapper.map(request, User.class);
+	    user.setPassword(passwordEncoder.encode(request.getPassword()));
+	    userRepository.save(user);
 
-	        userRepository.save(user);
-	        
-	        OtpVerification otpVerification = new OtpVerification();
+	    otpVerificationRepository.deleteAllByEmail(user.getEmail());
 
-	        String otp = generateOtp();
+	    OtpVerification otpVerification = new OtpVerification();
 
-	        otpVerification.setEmail(user.getEmail());
-	        otpVerification.setOtp(otp);
+	    String otp = generateOtp();
 
-	        emailService.sendOtp(
-	                user.getEmail(),
-	                otp
-	        );
-	        otpVerification.setExpiryTime(LocalDateTime.now().plusMinutes(5));
-	        otpVerification.setVerified(false);
+	    otpVerification.setEmail(user.getEmail());
+	    otpVerification.setOtp(otp);
 
-	        otpVerificationRepository.save(otpVerification);
+	    emailService.sendOtp(user.getEmail(), otp);
+	    otpVerification.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+	    otpVerification.setVerified(false);
 
-		return "User Register Successfully";
+	    otpVerificationRepository.save(otpVerification);
+
+	    return "User Register Successfully";
 	}
 
 	@Override
@@ -116,6 +115,7 @@ public class AuthServiceImpl implements AuthServices {
 		    return "OTP verified successfully";
 	}
 
+	@Transactional
 	@Override
 	public LoginResponse login(LoginRequest request) {
 
@@ -123,7 +123,7 @@ public class AuthServiceImpl implements AuthServices {
 	            .orElse(null);
 
 	    if (user == null) {
-	        return new LoginResponse("User not found", null);
+	        return new LoginResponse("User not found", null, null, null);
 	    }
 
 
@@ -131,24 +131,22 @@ public class AuthServiceImpl implements AuthServices {
 	            request.getPassword(),
 	            user.getPassword())) {
 
-	        return new LoginResponse("Invalid password", null);
+	        return new LoginResponse("Invalid password", null, null, null);
 	    }
 
 
 	    if (!user.getIsVerified()) {
-	        return new LoginResponse("Please verify OTP first", null);
+	        return new LoginResponse("Please verify OTP first", null, null, null);
 	    }
 
 
+	 // AuthServiceImpl.java, in login(), replace the final return:
 	    String token = jwtUtil.generateToken(user.getEmail());
-
-
-	    return new LoginResponse(
-	            "Login successful",
-	            token
-	    );
+	    return new LoginResponse("Login successful", token, user.getRole().name(), user.getName());
+	    
 	}
 
+	@Transactional
 	@Override
 	public String forgotPassword(ForgotPasswordRequest request) {
 
@@ -161,9 +159,8 @@ public class AuthServiceImpl implements AuthServices {
 
 	    String otp = generateOtp();
 
-	    OtpVerification otpVerification = otpVerificationRepository
-	            .findByEmail(request.getEmail())
-	            .orElse(new OtpVerification());
+	    otpVerificationRepository.deleteAllByEmail(request.getEmail());
+	    OtpVerification otpVerification = new OtpVerification();
 
 	    otpVerification.setEmail(request.getEmail());
 	    otpVerification.setOtp(otp);
@@ -176,7 +173,8 @@ public class AuthServiceImpl implements AuthServices {
 
 	    return "OTP sent successfully";
 	}
-
+	
+    @Transactional
 	@Override
 	public String resetPassword(ResetPasswordRequest request) {
 
@@ -187,9 +185,8 @@ public class AuthServiceImpl implements AuthServices {
 	        return "User not found";
 	    }
 
-	    OtpVerification otpVerification = otpVerificationRepository
-	            .findByEmail(request.getEmail())
-	            .orElse(null);
+	    otpVerificationRepository.deleteAllByEmail(request.getEmail());
+	    OtpVerification otpVerification = new OtpVerification();
 
 	    if (otpVerification == null) {
 	        return "OTP not found";
