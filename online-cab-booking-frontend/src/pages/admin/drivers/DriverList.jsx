@@ -67,7 +67,7 @@ const DriverList = () => {
       setDrivers((prev) =>
         prev.map((driver) =>
           driver.id === id
-            ? { ...driver, status: "BLOCK" }
+            ? { ...driver, status: "BLOCKED" }
             : driver
         )
       );
