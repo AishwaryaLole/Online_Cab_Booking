@@ -3,7 +3,10 @@ package com.cabbooking.services;
 import java.util.List;
 import java.util.Map;
 
+import com.cabbooking.dto.BookingAdminResponseDto;
+import com.cabbooking.dto.DriverReportDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
+import com.cabbooking.dto.RevenueReportDto;
 import com.cabbooking.dto.RideCancellationRequest;
 import com.cabbooking.dto.UserUpdateRequest;
 import com.cabbooking.entities.Driver;
@@ -31,7 +34,13 @@ public interface IAdminService {
 
     Map<String, Object> getBookingReport();
 
-    Map<String, Object> getRevenueReport();
+    RevenueReportDto getRevenueReport();
 
-    Map<String, Object> getDriverReport();
+    DriverReportDto getDriverReport();
+    
+    Map<String, Object> getDashboardStats();
+    
+    List<Driver> getAllDrivers();
+    
+    List<BookingAdminResponseDto> getAllBookings();
 }
