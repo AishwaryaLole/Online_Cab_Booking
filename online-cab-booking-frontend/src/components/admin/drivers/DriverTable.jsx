@@ -41,9 +41,6 @@ const DriverTable = ({
       case "BLOCKED":
         return "bg-red-100 text-red-700";
 
-      case "SUSPENDED":
-        return "bg-gray-200 text-gray-700";
-
       default:
         return "bg-blue-100 text-blue-700";
     }
@@ -148,7 +145,7 @@ const DriverTable = ({
 
                     <button
                       onClick={() => onSuspend(driver.id)}
-                      className="bg-gray-700 hover:bg-gray-800 text-white p-2 rounded"
+                      className="bg-yellow-400 hover:bg-gray-800 text-white p-2 rounded"
                       title="PENDING"
                     >
                       <Ban size={17} />
