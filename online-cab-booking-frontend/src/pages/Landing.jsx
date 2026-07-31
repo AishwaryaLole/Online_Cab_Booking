@@ -9,7 +9,6 @@ import Footer from "../components/common/Footer";
 export default function Landing() {
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
 
       <section className="max-w-7xl mx-auto px-8 py-16 grid md:grid-cols-2 gap-12 items-center">
         {/* Left side: text content */}
@@ -119,7 +118,6 @@ export default function Landing() {
 
          <Features />
       <Testimonials />
-    <Footer />
 
     </div>
   );
