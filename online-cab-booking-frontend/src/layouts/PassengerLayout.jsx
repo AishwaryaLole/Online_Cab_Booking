@@ -1,19 +1,19 @@
 import { Outlet } from "react-router-dom";
+import Sidebar from "../components/passenger/Sidebar";
+import TopNavbar from "../components/passenger/TopNavbar";
 
-import Sidebar from "../components/common/Sidebar";
-
-function PassengerLayout() {
+export default function PassengerLayout() {
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="flex h-screen bg-[#F8F5FF]">
+      <Sidebar />
 
-      <Sidebar role="PASSENGER" />
+      <div className="flex-1 overflow-y-auto">
+        <TopNavbar />
 
-      <main className="flex-1 p-6 overflow-auto">
-        <Outlet />
-      </main>
-
+        <div className="p-8">
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 }
-
-export default PassengerLayout;
