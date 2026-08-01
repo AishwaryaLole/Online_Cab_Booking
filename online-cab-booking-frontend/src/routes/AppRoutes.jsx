@@ -14,7 +14,8 @@ import ResetPassword from "../pages/auth/ResetPassword";
 import MainLayout from "../layouts/MainLayout";
 import AdminLayout from "../layouts/AdminLayout";
 
-import Dashboard from "../pages/admin/Dashboard";
+
+import AdminDashboard from "../pages/admin/Dashboard";
 import UserList from "../pages/admin/users/UserList";
 import DriverList from "../pages/admin/drivers/DriverList";
 import BookingList from "../pages/admin/bookings/BookingList";
@@ -22,6 +23,15 @@ import BookingReport from "../pages/admin/reports/BookingReport";
 import RevenueReport from "../pages/admin/reports/RevenueReport";
 import DriverReport from "../pages/admin/reports/DriverReport";
 import PassengerReport from "../pages/admin/reports/PassengerReport";
+
+import PassengerLayout from "../layouts/PassengerLayout";
+import PassengerDashboard from "../pages/passenger/PassengerDashboard";
+import BookRide from "../pages/passenger/BookRide";
+import RideHistory from "../pages/passenger/RideHistory";
+import Profile from "../pages/passenger/Profile";
+import Payment from "../pages/passenger/Payment";
+import Rating from "../pages/passenger/Rating";
+
 
 import PrivateRoute from "./PrivateRoute";
 import RoleRoute from "./RoleRoute";
@@ -34,6 +44,7 @@ export default function AppRoutes() {
 
         <Routes>
 
+
           {/* ================= Public Routes ================= */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<Landing />} />
@@ -45,11 +56,12 @@ export default function AppRoutes() {
             <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
 
+
           {/* ================= Admin Routes ================= */}
           <Route element={<PrivateRoute />}>
             <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
               <Route path="/admin" element={<AdminLayout />}>
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
 
                 {/* Users */}
                 <Route path="users" element={<UserList />} />
@@ -81,15 +93,19 @@ export default function AppRoutes() {
           */}
 
           {/* ================= Passenger Routes ================= */}
-          {/*
-          <Route element={<PrivateRoute />}>
-            <Route element={<RoleRoute allowedRoles={["PASSENGER"]} />}>
-              <Route path="/passenger" element={<PassengerLayout />}>
-                <Route index element={<PassengerDashboard />} />
+            <Route element={<PrivateRoute />}>
+              <Route element={<RoleRoute allowedRoles={["PASSENGER"]} />}>
+                <Route path="/passenger" element={<PassengerLayout />}>
+                  <Route index element={<PassengerDashboard />} />
+                  <Route path="dashboard" element={<PassengerDashboard />} />
+                  <Route path="book-ride" element={<BookRide />} />
+                  <Route path="ride-history" element={<RideHistory />} />
+                  <Route path="profile" element={<Profile />} />
+                  <Route path="payment" element={<Payment />} />
+                  <Route path="rating" element={<Rating />} />
               </Route>
             </Route>
           </Route>
-          */}
 
         </Routes>
       </BrowserRouter>
