@@ -20,7 +20,7 @@ import com.cabbooking.services.IPaymentService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/payments")
+@RequestMapping("api/payments")
 public class PaymentController {
 
     private final IPaymentService paymentService;

@@ -22,7 +22,7 @@ import com.cabbooking.services.IRatingService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/ratings")
+@RequestMapping("api/ratings")
 public class RatingController {
 
     private final IRatingService ratingService;
