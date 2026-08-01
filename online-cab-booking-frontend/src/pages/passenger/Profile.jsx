@@ -1,142 +1,203 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { Loader2, Mail, ShieldCheck } from "lucide-react";
+import useAuth from "../../hooks/useAuth";
+import { getUserById, updateUser } from "../../services/userService";
+import { forgotPassword, resetPassword } from "../../services/authService";
 
-function Profile() {
- const [profile, setProfile] = useState({
-    fullName: "Rahul Sharma",
-    email: "rahul@example.com",
-    phone: "9876543210",
-    gender: "Male",
-    address: "Pune, Maharashtra",
-  });
+export default function Profile() {
+  const { userId } = useAuth();
 
-  const handleChange = (e) => {
-    setProfile({
-      ...profile,
-      [e.target.name]: e.target.value,
-    });
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [form, setForm] = useState({ name: "", phone: "", email: "" });
+
+  // Change password (OTP based, since backend has no "current password" flow)
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+    getUserById(userId)
+      .then((data) => {
+        setProfile(data);
+        setForm({ name: data.name || "", phone: data.phone || "", email: data.email || "" });
+      })
+      .catch(() => toast.error("Failed to load profile."))
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const updated = await updateUser(userId, form);
+      setProfile(updated);
+      toast.success("Profile updated successfully.");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Could not update profile.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleSave = () => {
-    alert("Profile update API will be connected later.");
+  const handleSendOtp = async () => {
+    setSendingOtp(true);
+    const res = await forgotPassword(form.email);
+    setSendingOtp(false);
+    if (res.success) {
+      toast.success("OTP sent to your email.");
+      setOtpSent(true);
+    } else {
+      toast.error(res.message || "Could not send OTP.");
+    }
   };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!otp || !newPassword) {
+      toast.error("Enter the OTP and a new password.");
+      return;
+    }
+    setResetting(true);
+    const res = await resetPassword({ email: form.email, otp, newPassword });
+    setResetting(false);
+    if (res.success) {
+      toast.success("Password updated successfully.");
+      setOtpSent(false);
+      setOtp("");
+      setNewPassword("");
+    } else {
+      toast.error(res.message || "Could not reset password.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-400 gap-2">
+        <Loader2 className="animate-spin" size={20} /> Loading profile...
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="space-y-6 max-w-2xl">
+      <div>
+        <h1 className="text-2xl font-extrabold text-gray-900">Profile</h1>
+        <p className="text-gray-500 text-sm mt-1">View and update your details.</p>
+      </div>
 
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+      {/* Profile summary */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-violet-600 text-white flex items-center justify-center text-2xl font-bold shrink-0">
+          {profile?.name?.[0]?.toUpperCase() || "P"}
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">{profile?.name}</h2>
+          <p className="text-sm text-gray-500 flex items-center gap-1">
+            <Mail size={13} /> {profile?.email}
+          </p>
+          <span className="inline-flex items-center gap-1 mt-1 text-xs font-semibold text-violet-700 bg-violet-100 px-2.5 py-0.5 rounded-full">
+            <ShieldCheck size={12} /> {profile?.role || "PASSENGER"}
+          </span>
+        </div>
+      </div>
 
-        {/* Heading */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          My Profile
-        </h1>
+      {/* Edit profile */}
+      <form
+        onSubmit={handleSave}
+        className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4"
+      >
+        <h3 className="font-bold text-gray-900">Edit profile</h3>
 
-        <p className="text-gray-500 mb-8">
-          View and update your profile information.
-        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1.5">Full name</label>
+            <input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 focus:bg-white"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1.5">Phone</label>
+            <input
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 focus:bg-white"
+            />
+          </div>
+        </div>
 
-        {/* Profile Image */}
-        <div className="flex justify-center mb-8">
-          <img
-            src="https://ui-avatars.com/api/?name=Passenger&background=2563eb&color=fff&size=150"
-            alt="Profile"
-            className="w-32 h-32 rounded-full border-4 border-blue-500"
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1.5">Email</label>
+          <input
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 focus:bg-white"
           />
         </div>
 
-        {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors"
+        >
+          {saving ? "Saving..." : "Save changes"}
+        </button>
+      </form>
 
-          <div>
-            <label className="block mb-2 font-semibold">
-              Full Name
-            </label>
+      {/* Change password */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <h3 className="font-bold text-gray-900">Change password</h3>
+        <p className="text-xs text-gray-500">
+          For security, we'll email a one-time code to {form.email || "your email"} before you can set a new password.
+        </p>
 
-            <input
-              type="text"
-              name="fullName"
-              value={profile.fullName}
-              onChange={handleChange}
-              className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold">
-              Email
-            </label>
-
-            <input
-              type="email"
-              name="email"
-              value={profile.email}
-              onChange={handleChange}
-              className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold">
-              Phone
-            </label>
-
-            <input
-              type="text"
-              name="phone"
-              value={profile.phone}
-              onChange={handleChange}
-              className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-semibold">
-              Gender
-            </label>
-
-            <select
-              name="gender"
-              value={profile.gender}
-              onChange={handleChange}
-              className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              <option>Male</option>
-              <option>Female</option>
-              <option>Other</option>
-            </select>
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block mb-2 font-semibold">
-              Address
-            </label>
-
-            <textarea
-              rows="4"
-              name="address"
-              value={profile.address}
-              onChange={handleChange}
-              className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-        </div>
-
-        {/* Save Button */}
-        <div className="mt-8 text-center">
-
+        {!otpSent ? (
           <button
-            onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition"
+            onClick={handleSendOtp}
+            disabled={sendingOtp}
+            className="bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
           >
-            Save Changes
+            {sendingOtp ? "Sending OTP..." : "Send OTP to email"}
           </button>
-
-        </div>
-
+        ) : (
+          <form onSubmit={handleResetPassword} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1.5">OTP</label>
+              <input
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="6-digit code"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 focus:bg-white"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1.5">New password</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 focus:bg-white"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={resetting}
+              className="sm:col-span-2 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors w-fit"
+            >
+              {resetting ? "Updating..." : "Update password"}
+            </button>
+          </form>
+        )}
       </div>
-
     </div>
   );
 }
-
-export default Profile;

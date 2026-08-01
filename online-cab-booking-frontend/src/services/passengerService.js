@@ -1,6 +1,5 @@
 import axios from "axios";
 
-<<<<<<< HEAD
 const BASE_URL = "http://localhost:8080/api/api";
 
 // Book Ride
@@ -57,7 +56,7 @@ export const submitRating = async (ratingData) => {
 
   return response.data;
 };
-=======
+
 const API_URL = "http://localhost:8080/api/passenger";
 
 
@@ -98,27 +97,6 @@ const updatePassengerProfile = async(data)=>{
 };
 
 
-
-const getRideHistory = async()=>{
-
-    const token = localStorage.getItem("token");
-
-    const response = await axios.get(
-        `${API_URL}/rides`,
-        {
-            headers:{
-                Authorization:`Bearer ${token}`
-            }
-        }
-    );
-
-
-    return response.data;
-
-};
-
-
-
 export default {
 
     getPassengerProfile,
@@ -126,4 +104,4 @@ export default {
     getRideHistory
 
 };
->>>>>>> main
+

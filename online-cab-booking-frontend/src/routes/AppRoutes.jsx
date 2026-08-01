@@ -25,7 +25,7 @@ import DriverReport from "../pages/admin/reports/DriverReport";
 import PassengerReport from "../pages/admin/reports/PassengerReport";
 
 import PassengerLayout from "../layouts/PassengerLayout";
-import PassengerDashboard from "../pages/passenger/Dashboard";
+import PassengerDashboard from "../pages/passenger/PassengerDashboard";
 import BookRide from "../pages/passenger/BookRide";
 import RideHistory from "../pages/passenger/RideHistory";
 import Profile from "../pages/passenger/Profile";
@@ -93,18 +93,19 @@ export default function AppRoutes() {
           */}
 
           {/* ================= Passenger Routes ================= */}
-         <Route element={<PrivateRoute />}>
-  <Route element={<RoleRoute allowedRoles={["PASSENGER"]} />}>
-    <Route path="/passenger" element={<PassengerLayout />}>
-      <Route index element={<PassengerDashboard />} />
-      <Route path="book-ride" element={<BookRide />} />
-      <Route path="ride-history" element={<RideHistory />} />
-      <Route path="profile" element={<Profile />} />
-      <Route path="payment" element={<Payment />} />
-      <Route path="rating" element={<Rating />} />
-    </Route>
-  </Route>
-</Route>
+            <Route element={<PrivateRoute />}>
+              <Route element={<RoleRoute allowedRoles={["PASSENGER"]} />}>
+                <Route path="/passenger" element={<PassengerLayout />}>
+                  <Route index element={<PassengerDashboard />} />
+                  <Route path="dashboard" element={<PassengerDashboard />} />
+                  <Route path="book-ride" element={<BookRide />} />
+                  <Route path="ride-history" element={<RideHistory />} />
+                  <Route path="profile" element={<Profile />} />
+                  <Route path="payment" element={<Payment />} />
+                  <Route path="rating" element={<Rating />} />
+              </Route>
+            </Route>
+          </Route>
 
         </Routes>
       </BrowserRouter>
