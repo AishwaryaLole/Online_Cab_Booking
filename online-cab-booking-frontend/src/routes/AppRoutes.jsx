@@ -30,7 +30,6 @@ import Payment from "../pages/passenger/Payment";
 
 
 // ++++++++
-import TrackRide from "../pages/passenger/TrackRide";
 import Rating from "../pages/passenger/Rating";
 
 // Driver Pages
@@ -77,7 +76,6 @@ function AppRoutes() {
         <Route path="payment" element={<Payment />} />
 
         {/* +++++++ */}
-        <Route path="track" element={<TrackRide />} />
         <Route path="rating" element={<Rating />} />
       </Route>
 

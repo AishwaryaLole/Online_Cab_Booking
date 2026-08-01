@@ -27,11 +27,7 @@ function PassengerSidebar() {
       icon: <FaHistory />,
       path: "/passenger/ride-history",
     },
-    {
-      name: "Track Ride",
-      icon: <FaMapMarkedAlt />,
-      path: "/passenger/track-ride",
-    },
+  
     {
       name: "Payment",
       icon: <FaCreditCard />,

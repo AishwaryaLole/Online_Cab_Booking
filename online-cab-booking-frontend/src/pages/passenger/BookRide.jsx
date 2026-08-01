@@ -71,19 +71,14 @@ function BookRide() {
 
     alert(response.message);
 
-    // Navigate to Track page
-    navigate("/passenger/track", {
+    // Navigate to Payment page
+    navigate("/passenger/payment", {
       state: {
         rideId: response.data.id,
       },
     });
 
-    // Navigate to Track Ride page
-    navigate("/passenger/track", {
-      state: {
-        rideId: response.data.id,
-      },
-    });
+  
 
   } catch (error) {
     console.error(error);
