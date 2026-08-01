@@ -20,8 +20,13 @@ export const setName = (name) => localStorage.setItem(NAME_KEY, name);
 export const getName = () => localStorage.getItem(NAME_KEY);
 export const removeName = () => localStorage.removeItem(NAME_KEY);
 
-export const setUserId = (userId) => localStorage.setItem(USER_ID_KEY, userId);
-export const getUserId = () => localStorage.getItem(USER_ID_KEY);
+
+export const setUserId = (id) => localStorage.setItem(USER_ID_KEY, id);
+export const getUserId = () => {
+  const id = localStorage.getItem(USER_ID_KEY);
+  return id ? Number(id) : null;
+};
+
 export const removeUserId = () => localStorage.removeItem(USER_ID_KEY);
 
 export const clearAuth = () => {
@@ -30,4 +35,4 @@ export const clearAuth = () => {
   removeRole();
   removeName();
   removeUserId();
-};
+}
