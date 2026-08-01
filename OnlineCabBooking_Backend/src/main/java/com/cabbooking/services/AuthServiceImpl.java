@@ -123,7 +123,7 @@ public class AuthServiceImpl implements AuthServices {
 	            .orElse(null);
 
 	    if (user == null) {
-	        return new LoginResponse("User not found", null, null, null);
+	        return new LoginResponse("User not found", null, null, null, null);
 	    }
 
 
@@ -131,18 +131,18 @@ public class AuthServiceImpl implements AuthServices {
 	            request.getPassword(),
 	            user.getPassword())) {
 
-	        return new LoginResponse("Invalid password", null, null, null);
+	        return new LoginResponse("Invalid password", null, null, null, null);
 	    }
 
 
 	    if (!user.getIsVerified()) {
-	        return new LoginResponse("Please verify OTP first", null, null, null);
+	        return new LoginResponse("Please verify OTP first", null, null, null, null);
 	    }
 
 
 	 // AuthServiceImpl.java, in login(), replace the final return:
 	    String token = jwtUtil.generateToken(user.getEmail());
-	    return new LoginResponse("Login successful", token, user.getRole().name(), user.getName());
+	    return new LoginResponse("Login successful", token, user.getRole().name(), user.getName(),user.getId());
 	    
 	}
 
@@ -188,9 +188,9 @@ public class AuthServiceImpl implements AuthServices {
 	    otpVerificationRepository.deleteAllByEmail(request.getEmail());
 	    OtpVerification otpVerification = new OtpVerification();
 
-	    if (otpVerification == null) {
+	    if (otpVerification == null) 
 	        return "OTP not found";
-	    }
+	    
 
 	    if (otpVerification.getExpiryTime().isBefore(LocalDateTime.now())) {
 	        return "OTP expired";

@@ -8,8 +8,7 @@ import com.cabbooking.dto.DriverLocationDto;
 
 public interface DriverService {
 
-	// Get driver by id
-    DriverDto getDriverById(Long driverId);
+	
 
     // Get all drivers
     List<DriverDto> getAllDrivers();
@@ -26,5 +25,7 @@ public interface DriverService {
     DriverDto addDriver(DriverDto driverDto);
         
     void deleteDriver(Long driverId);
+    
+    DriverDto getDriverByUserId(Long userId);
     
 }
