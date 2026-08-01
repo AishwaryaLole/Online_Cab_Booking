@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Mail, Lock, Eye, EyeOff, Car } from "lucide-react";
-import Navbar from "../../components/common/Navbar";
 import useAuth from "../../hooks/useAuth";
 import { isValidEmail } from "../../utils/validators";
 import { DASHBOARD_ROUTES } from "../../utils/constants";
@@ -49,7 +48,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
 
       <div className="flex items-center justify-center px-4 py-16">
         <div className="bg-white rounded-3xl shadow-lg p-8 w-full max-w-md">

@@ -1,16 +1,12 @@
 import { Link } from "react-router-dom";
 import { Star, CheckCircle2, Clock, ArrowRight, Car, MapPin, Flag } from "lucide-react";
-import Navbar from "../components/common/Navbar";
 import Features from "../components/common/Features";
 import Testimonials from "../components/common/Testimonials";
-import Footer from "../components/common/Footer";
 
 
 export default function Landing() {
   return (
     <div className="min-h-screen bg-white">
-
-     
 
 
       <section className="max-w-7xl mx-auto px-8 py-16 grid md:grid-cols-2 gap-12 items-center">
@@ -121,8 +117,6 @@ export default function Landing() {
 
          <Features />
       <Testimonials />
-
-    
 
 
     </div>
