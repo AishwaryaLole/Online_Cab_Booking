@@ -5,9 +5,12 @@ import {
   UserCircle,
   ChevronRight,
 } from "lucide-react";
+import { AuthContext } from "../../context/AuthContext";
+import { useContext } from "react";
 
 const AdminNavbar = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation();
+  const { name } = useContext(AuthContext);
 
   // Create Breadcrumbs
   const pathnames = location.pathname
@@ -60,10 +63,7 @@ const AdminNavbar = ({ sidebarOpen, setSidebarOpen }) => {
             <UserCircle size={35} className="text-blue-600" />
 
             <div className="hidden sm:block">
-              <h3 className="font-semibold">Admin</h3>
-              <p className="text-xs text-gray-500">
-                admin@gmail.com
-              </p>
+              <h3 className="font-semibold">Welcome, {name}</h3>
             </div>
           </div>
 
