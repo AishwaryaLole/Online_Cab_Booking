@@ -19,6 +19,8 @@ public class SecurityConfig {
 	
 	private final JwtFilter jwtFilter;
 
+   
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -28,19 +30,27 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+            // Enable CORS
+            .cors(cors -> {})
+
+            // Disable CSRF for stateless JWT authentication
             .csrf(csrf -> csrf.disable())
+
             .authorizeHttpRequests(auth -> auth
 
                 .requestMatchers(
+
                         "/user/auth/**",     // Registration & Login APIs
                         "/v3/api-docs/**",   // OpenAPI JSON
                         "/swagger-ui/**",    // Swagger UI resources
                         "/swagger-ui.html" // Swagger UI page
 
+
                 ).permitAll()
 
                 .anyRequest().permitAll()
             )
+
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
