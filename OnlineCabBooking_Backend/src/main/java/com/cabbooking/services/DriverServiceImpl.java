@@ -51,15 +51,7 @@ public class DriverServiceImpl implements DriverService {
         return convertToDto(savedDriver);
     }
 
-    @Override
-    public DriverDto getDriverById(Long driverId) {
-
-        Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Driver not found"));
-
-        return convertToDto(driver);
-    }
+   
 
     @Override
     public List<DriverDto> getAllDrivers() {
@@ -147,6 +139,14 @@ public class DriverServiceImpl implements DriverService {
         dto.setLicenseNumber(driver.getLicenseNumber());
         dto.setStatus(driver.getStatus().name());
 
+        if (driver.getDriverLocation() != null) {
+            DriverLocationDto locationDto = new DriverLocationDto();
+            locationDto.setDriverId(driver.getId());
+            locationDto.setLatitude(driver.getDriverLocation().getLatitude());
+            locationDto.setLongitude(driver.getDriverLocation().getLongitude());
+            dto.setLocation(locationDto);
+        }
+
         return dto;
     }
 
@@ -158,6 +158,13 @@ public class DriverServiceImpl implements DriverService {
                         new ResourceNotFoundException("Driver not found"));
 
         driverRepository.delete(driver);
+    }
+    
+    @Override
+    public DriverDto getDriverByUserId(Long userId) {
+        Driver driver = driverRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver not found for this user"));
+        return convertToDto(driver);
     }
 
 

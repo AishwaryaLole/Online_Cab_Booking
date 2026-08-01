@@ -32,8 +32,8 @@ export const resendOtp = async (email) => {
 export const loginUser = async (data) => {
   try {
     const res = await api.post("/user/auth/login", data);
-    const { message, token, role, name } = res.data;
-    return { success: !!token, message, token, role, name };
+    const { message, token, role, name, userId } = res.data;
+    return { success: !!token, message, token, role, name, userId };
   } catch (error) {
     return { success: false, message: error.response?.data?.message || "Login failed" };
   }

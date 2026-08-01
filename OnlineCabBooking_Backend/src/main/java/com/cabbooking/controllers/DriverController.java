@@ -13,7 +13,7 @@ import com.cabbooking.dto.DriverLocationDto;
 import com.cabbooking.services.DriverService;
 
 @RestController
-@RequestMapping("/api/drivers")
+@RequestMapping("/drivers")
 public class DriverController {
 
     private final DriverService driverService;
@@ -38,12 +38,12 @@ public class DriverController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // Get Driver By ID
-    @GetMapping("/{driverId}")
-    public ResponseEntity<ApiResponse<DriverDto>> getDriverById(
-            @PathVariable Long driverId) {
+    // Get Driver By User ID (used right after login)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<DriverDto>> getDriverByUserId(
+            @PathVariable Long userId) {
 
-        DriverDto driver = driverService.getDriverById(driverId);
+        DriverDto driver = driverService.getDriverByUserId(userId);
 
         ApiResponse<DriverDto> response = new ApiResponse<>(
                 HttpStatus.OK.value(),

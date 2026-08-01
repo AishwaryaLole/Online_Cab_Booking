@@ -28,6 +28,12 @@ public interface RideService {
 	//Complete the ride
 	RideResponseDTO completeRide(Long id);
 	
+	List<RideResponseDTO> getAssignedRides(Long driverId);
 	
+	RideResponseDTO acceptRide(Long id);
+	
+	RideResponseDTO rejectRide(Long id);
+	
+	List<RideResponseDTO> getRideHistoryByDriver(Long driverId);
 
 }

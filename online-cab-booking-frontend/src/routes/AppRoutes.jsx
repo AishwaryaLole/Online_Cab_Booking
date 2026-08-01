@@ -14,7 +14,7 @@ import ResetPassword from "../pages/auth/ResetPassword";
 import MainLayout from "../layouts/MainLayout";
 import AdminLayout from "../layouts/AdminLayout";
 
-import Dashboard from "../pages/admin/Dashboard";
+import AdminDashboard from "../pages/admin/Dashboard";
 import UserList from "../pages/admin/users/UserList";
 import DriverList from "../pages/admin/drivers/DriverList";
 import BookingList from "../pages/admin/bookings/BookingList";
@@ -25,6 +25,13 @@ import PassengerReport from "../pages/admin/reports/PassengerReport";
 
 import PrivateRoute from "./PrivateRoute";
 import RoleRoute from "./RoleRoute";
+
+import DriverLayout from "../layouts/DriverLayout";
+import DriverDashboard from "../pages/driver/Dashboard";
+import DriverProfile from "../pages/driver/DriverProfile";
+import Vehicle from "../pages/driver/Vehicle";
+import Location from "../pages/driver/Location";
+import AssignedRide from "../pages/driver/AssignedRide";
 
 export default function AppRoutes() {
   return (
@@ -49,7 +56,7 @@ export default function AppRoutes() {
           <Route element={<PrivateRoute />}>
             <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
               <Route path="/admin" element={<AdminLayout />}>
-                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
 
                 {/* Users */}
                 <Route path="users" element={<UserList />} />
@@ -70,15 +77,17 @@ export default function AppRoutes() {
           </Route>
 
           {/* ================= Driver Routes ================= */}
-          {/*
           <Route element={<PrivateRoute />}>
             <Route element={<RoleRoute allowedRoles={["DRIVER"]} />}>
               <Route path="/driver" element={<DriverLayout />}>
-                <Route index element={<DriverDashboard />} />
+                <Route path="dashboard" element={<DriverDashboard />} />
+                <Route path="profile" element={<DriverProfile />} />
+                <Route path="vehicle" element={<Vehicle />} />
+                <Route path="location" element={<Location />} />
+                <Route path="assigned-ride" element={<AssignedRide />} />
               </Route>
             </Route>
           </Route>
-          */}
 
           {/* ================= Passenger Routes ================= */}
           {/*

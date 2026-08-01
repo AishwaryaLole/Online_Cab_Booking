@@ -5,6 +5,7 @@ import {
   setEmail, getEmail,
   setRole, getRole,
   setName, getName,
+  setUserId, getUserId,
   clearAuth,
 } from "../utils/storage";
 
@@ -15,6 +16,7 @@ export function AuthProvider({ children }) {
   const [email, setEmailState] = useState(getEmail());
   const [role, setRoleState] = useState(getRole());
   const [name, setNameState] = useState(getName());
+  const [userId, setUserIdState] = useState(getUserId());
 
   const login = useCallback(async (loginEmail, password) => {
     const res = await loginUser({ email: loginEmail, password });
@@ -23,10 +25,12 @@ export function AuthProvider({ children }) {
       setEmail(loginEmail);
       setRole(res.role);
       setName(res.name);
+      setUserId(res.userId);
       setTokenState(res.token);
       setEmailState(loginEmail);
       setRoleState(res.role);
       setNameState(res.name);
+      setUserIdState(res.userId);
     }
     return res;
   }, []);
@@ -37,9 +41,10 @@ export function AuthProvider({ children }) {
     setEmailState(null);
     setRoleState(null);
     setNameState(null);
+    setUserIdState(null);
   }, []);
 
-  const value = { token, email, role, name, isAuthenticated: !!token, login, logout };
+  const value = { token, email, role, name, userId, isAuthenticated: !!token, login, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

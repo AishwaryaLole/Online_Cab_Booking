@@ -203,5 +203,58 @@ public class RideServiceImpl implements RideService {
 
 	    return response;
 	}
+	
+	@Override
+	public List<RideResponseDTO> getAssignedRides(Long driverId) {
+	    List<Ride> rides = rideRepository.findByDriver_IdAndStatus(driverId, com.cabbooking.enums.RideStatus.ASSIGNED);
+
+	    return rides.stream().map(ride -> {
+	        RideResponseDTO response = modelMapper.map(ride, RideResponseDTO.class);
+	        response.setPassengerId(ride.getPassenger().getId());
+	        response.setDriverId(ride.getDriver().getId());
+	        return response;
+	    }).toList();
+	}
+
+	@Override
+	public RideResponseDTO acceptRide(Long id) {
+	    Ride ride = rideRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+
+	    ride.setStatus(com.cabbooking.enums.RideStatus.ACCEPTED);
+	    Ride updatedRide = rideRepository.save(ride);
+
+	    RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
+	    response.setPassengerId(updatedRide.getPassenger().getId());
+	    response.setDriverId(updatedRide.getDriver().getId());
+	    return response;
+	}
+
+	@Override
+	public RideResponseDTO rejectRide(Long id) {
+	    Ride ride = rideRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException("Ride not found"));
+
+	    ride.setDriver(null);
+	    ride.setStatus(com.cabbooking.enums.RideStatus.REQUESTED);
+	    Ride updatedRide = rideRepository.save(ride);
+
+	    RideResponseDTO response = modelMapper.map(updatedRide, RideResponseDTO.class);
+	    response.setPassengerId(updatedRide.getPassenger().getId());
+	    return response;
+	}
+	
+	@Override
+	public List<RideResponseDTO> getRideHistoryByDriver(Long driverId) {
+	    List<Ride> rides = rideRepository.findByDriver_Id(driverId);
+
+	    return rides.stream().map(ride -> {
+	        RideResponseDTO response = modelMapper.map(ride, RideResponseDTO.class);
+	        response.setPassengerId(ride.getPassenger().getId());
+	        response.setDriverId(ride.getDriver().getId());
+	        return response;
+	    }).toList();
+	}
+	
 
 }

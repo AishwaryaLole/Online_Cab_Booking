@@ -30,4 +30,6 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     default Ride saveRide(Ride ride) {
         return save(ride);
     }
+    
+    List<Ride> findByDriver_IdAndStatus(Long driverId, RideStatus status);
 }
