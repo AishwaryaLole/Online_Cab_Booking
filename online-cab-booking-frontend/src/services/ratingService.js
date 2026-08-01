@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080/api/api";
+const BASE_URL = "http://localhost:8080";
 
 // Submit Rating
 export const giveRating = async (ratingData) => {

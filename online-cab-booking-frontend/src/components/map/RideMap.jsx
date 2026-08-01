@@ -38,7 +38,7 @@ function ChangeMapView({ center }) {
   return null;
 }
 
-function RideMap({ rideData }) {
+function RideMap({ rideData, setRideData }) {
   // Default India Location
   const [currentLocation, setCurrentLocation] = useState([
     20.5937,
@@ -86,34 +86,65 @@ function RideMap({ rideData }) {
         return;
       }
 
-      const data = await getRoute(
-        rideData.pickupLat,
-        rideData.pickupLng,
-        rideData.dropLat,
-        rideData.dropLng
-      );
+      try {
+        const data = await getRoute(
+          rideData.pickupLat,
+          rideData.pickupLng,
+          rideData.dropLat,
+          rideData.dropLng
+        );
 
-      if (!data || !data.routes || data.routes.length === 0) {
-        return;
+        if (!data || !data.routes || data.routes.length === 0) {
+          return;
+        }
+
+        // Route Coordinates
+        const coordinates = data.routes[0].geometry.coordinates.map(
+          ([lng, lat]) => [lat, lng]
+        );
+
+        setRoute(coordinates);
+
+        // Distance in KM
+        const distanceKm = Number(
+          (data.routes[0].distance / 1000).toFixed(2)
+        );
+
+        // Duration in Minutes
+        const durationMin = Math.ceil(
+          data.routes[0].duration / 60
+        );
+
+        // Fare Calculation
+        // ₹15 per KM
+        const fare = Math.round(distanceKm * 15);
+
+        console.log("Distance:", distanceKm);
+        console.log("Duration:", durationMin);
+        console.log("Fare:", fare);
+
+        setDistance(distanceKm);
+        setDuration(durationMin);
+
+        // Update parent state
+       setRideData({
+          distance: distanceKm,
+          duration: durationMin,
+          fare: fare,
+        });
+      } catch (error) {
+        console.log(error);
       }
-
-      const coordinates = data.routes[0].geometry.coordinates.map(
-        ([lng, lat]) => [lat, lng]
-      );
-
-      setRoute(coordinates);
-
-      setDistance(
-        (data.routes[0].distance / 1000).toFixed(2)
-      );
-
-      setDuration(
-        Math.ceil(data.routes[0].duration / 60)
-      );
     };
 
     loadRoute();
-  }, [rideData]);
+  }, [
+    rideData.pickupLat,
+    rideData.pickupLng,
+    rideData.dropLat,
+    rideData.dropLng,
+    setRideData,
+  ]);
 
   // Map Center
   const mapCenter =
@@ -123,7 +154,6 @@ function RideMap({ rideData }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-5 mt-6">
-
       <h2 className="text-2xl font-bold text-gray-800 mb-4">
         Ride Map
       </h2>
@@ -141,14 +171,12 @@ function RideMap({ rideData }) {
 
         <ChangeMapView center={mapCenter} />
 
-        {/* Current Location */}
         {!rideData.pickupLat && (
           <Marker position={currentLocation}>
             <Popup>Current Location</Popup>
           </Marker>
         )}
 
-        {/* Pickup Marker */}
         {rideData.pickupLat && rideData.pickupLng && (
           <Marker
             position={[
@@ -160,7 +188,6 @@ function RideMap({ rideData }) {
           </Marker>
         )}
 
-        {/* Drop Marker */}
         {rideData.dropLat && rideData.dropLng && (
           <Marker
             position={[
@@ -172,7 +199,6 @@ function RideMap({ rideData }) {
           </Marker>
         )}
 
-        {/* Route */}
         {route.length > 0 && (
           <Polyline
             positions={route}
@@ -184,10 +210,8 @@ function RideMap({ rideData }) {
         )}
       </MapContainer>
 
-      {/* Distance & ETA */}
       {route.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
-
           <div className="bg-blue-100 rounded-xl p-5 shadow">
             <h3 className="text-lg font-semibold text-blue-700">
               Distance
@@ -207,7 +231,6 @@ function RideMap({ rideData }) {
               {duration} min
             </p>
           </div>
-
         </div>
       )}
     </div>

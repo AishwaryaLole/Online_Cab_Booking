@@ -21,7 +21,7 @@ function BookRide() {
     dropLat: null,
     dropLng: null,
 
-    fare: 250,
+    fare: 0,
     distance: 0,
     duration: 0,
   });
@@ -59,13 +59,24 @@ function BookRide() {
 
     console.log("Request:", request);
 
-      const response = await bookRide(request);
+    const response = await bookRide(request);
 
-      localStorage.setItem("rideId", response.data.id);
+    // Save ride id
+    localStorage.setItem("rideId", response.data.id);
 
-      alert(response.message);
+    // Save estimated details
+    localStorage.setItem("estimatedFare", rideData.fare);
+    localStorage.setItem("estimatedDistance", rideData.distance);
+    localStorage.setItem("estimatedDuration", rideData.duration);
 
-      navigate("/passenger/track");
+    alert(response.message);
+
+    // Navigate to Track page
+    navigate("/passenger/track", {
+      state: {
+        rideId: response.data.id,
+      },
+    });
 
     // Navigate to Track Ride page
     navigate("/passenger/track", {
@@ -101,6 +112,7 @@ function BookRide() {
       {/* Map */}
       <RideMap
         rideData={rideData}
+        setRideData={handleRideData}
       />
 
       {/* Fare + Confirmation */}

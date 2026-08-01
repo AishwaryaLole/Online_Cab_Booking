@@ -47,3 +47,12 @@ export const makePayment = async (paymentData) => {
   return response.data;
 };
 
+// Submit Rating
+export const submitRating = async (ratingData) => {
+  const response = await axios.post(
+    "http://localhost:8080/ratings",
+    ratingData
+  );
+
+  return response.data;
+};

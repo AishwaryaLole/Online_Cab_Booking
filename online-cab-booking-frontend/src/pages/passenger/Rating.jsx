@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { giveRating } from "../../services/ratingService";
+import { submitRating } from "../../services/passengerService";
 
 function Rating() {
   const [form, setForm] = useState({

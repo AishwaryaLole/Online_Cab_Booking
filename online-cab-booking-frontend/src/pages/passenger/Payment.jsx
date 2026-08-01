@@ -10,6 +10,10 @@ function Payment() {
 
   const rideId = localStorage.getItem("rideId");
 
+  const estimatedFare = localStorage.getItem("estimatedFare");
+  const estimatedDistance = localStorage.getItem("estimatedDistance");
+  const estimatedDuration = localStorage.getItem("estimatedDuration");
+
   useEffect(() => {
     fetchRide();
   }, []);
@@ -19,7 +23,14 @@ function Payment() {
       const response = await getRideById(rideId);
 
       if (response.success) {
-        setRide(response.data);
+        setRide({
+          ...response.data,
+          fare: response.data.fare ?? Number(estimatedFare),
+          distanceKm:
+            response.data.distanceKm ?? Number(estimatedDistance),
+          durationMin:
+            response.data.durationMin ?? Number(estimatedDuration),
+        });
       }
     } catch (error) {
       console.log(error);
@@ -36,12 +47,11 @@ function Payment() {
         amount: ride.fare,
       };
 
-      console.log("Payment Request:", request);
+      console.log(request);
 
       const response = await makePayment(request);
 
       alert(response.message);
-      console.log(response);
     } catch (error) {
       console.log(error);
       alert("Payment Failed");
@@ -51,7 +61,7 @@ function Payment() {
   if (!ride) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <h2 className="text-2xl font-semibold text-gray-600">
+        <h2 className="text-2xl font-semibold">
           Loading...
         </h2>
       </div>
@@ -63,8 +73,7 @@ function Payment() {
 
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-8">
 
-        {/* Heading */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <h1 className="text-3xl font-bold mb-2">
           Payment
         </h1>
 
@@ -72,7 +81,6 @@ function Payment() {
           Select your payment method.
         </p>
 
-        {/* Ride Summary */}
         <div className="bg-blue-50 rounded-xl p-5 mb-8">
 
           <h2 className="text-xl font-semibold mb-4">
@@ -96,74 +104,66 @@ function Payment() {
           </p>
 
           <p>
-            <strong>Distance:</strong>{" "}
-            {ride.distanceKm ?? "Not Available"} km
+            <strong>Distance:</strong> {ride.distanceKm} km
           </p>
 
           <p>
-            <strong>Duration:</strong>{" "}
-            {ride.durationMin ?? "Not Available"} min
+            <strong>Duration:</strong> {ride.durationMin} min
           </p>
 
-          <p className="text-2xl font-bold text-blue-600 mt-4">
-            ₹ {ride.fare ?? "Not Calculated"}
+          <p className="text-3xl font-bold text-green-600 mt-4">
+            ₹ {ride.fare}
+          </p>
+
+          <p className="text-sm text-gray-500 mt-2">
+            Estimated Fare
           </p>
 
         </div>
 
-        {/* Payment Methods */}
         <div className="space-y-4">
 
-          <label className="flex items-center gap-3 border rounded-xl p-4 cursor-pointer hover:bg-gray-50">
-
+          <label className="flex items-center gap-3 border rounded-xl p-4">
             <input
               type="radio"
               value="CASH"
               checked={paymentMethod === "CASH"}
-              onChange={(e) => setPaymentMethod(e.target.value)}
+              onChange={(e) =>
+                setPaymentMethod(e.target.value)
+              }
             />
-
             Cash
-
           </label>
 
-          <label className="flex items-center gap-3 border rounded-xl p-4 cursor-pointer hover:bg-gray-50">
-
+          <label className="flex items-center gap-3 border rounded-xl p-4">
             <input
               type="radio"
               value="UPI"
               checked={paymentMethod === "UPI"}
-              onChange={(e) => setPaymentMethod(e.target.value)}
+              onChange={(e) =>
+                setPaymentMethod(e.target.value)
+              }
             />
-
             UPI
-
           </label>
 
-          <label className="flex items-center gap-3 border rounded-xl p-4 cursor-pointer hover:bg-gray-50">
-
+          <label className="flex items-center gap-3 border rounded-xl p-4">
             <input
               type="radio"
               value="CARD"
               checked={paymentMethod === "CARD"}
-              onChange={(e) => setPaymentMethod(e.target.value)}
+              onChange={(e) =>
+                setPaymentMethod(e.target.value)
+              }
             />
-
             Credit / Debit Card
-
           </label>
 
         </div>
 
-        {/* Pay Button */}
         <button
           onClick={handlePayment}
-          disabled={ride.fare == null}
-          className={`w-full mt-8 py-3 rounded-xl font-semibold transition ${
-            ride.fare == null
-              ? "bg-gray-400 cursor-not-allowed text-white"
-              : "bg-green-600 hover:bg-green-700 text-white"
-          }`}
+          className="w-full mt-8 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-semibold"
         >
           Proceed to Pay
         </button>
