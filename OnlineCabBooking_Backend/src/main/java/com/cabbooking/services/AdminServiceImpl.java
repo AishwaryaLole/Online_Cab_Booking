@@ -14,6 +14,7 @@ import com.cabbooking.dto.DriverReportDto;
 import com.cabbooking.dto.DriverReportItemDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
 import com.cabbooking.dto.DriverSummaryDto;
+import com.cabbooking.dto.PassengerReportItemDto;
 import com.cabbooking.dto.RevenueReportDto;
 import com.cabbooking.dto.RevenueSummaryDto;
 import com.cabbooking.dto.RevenueTransactionDto;
@@ -27,6 +28,7 @@ import com.cabbooking.entities.Vehicle;
 import com.cabbooking.enums.DriverStatus;
 import com.cabbooking.enums.PaymentStatus;
 import com.cabbooking.enums.RideStatus;
+import com.cabbooking.enums.Role;
 import com.cabbooking.exception.BadRequestException;
 import com.cabbooking.exception.ResourceNotFoundException;
 import com.cabbooking.repository.DriverLocationRepository;
@@ -292,6 +294,38 @@ public void deleteUser(Long userId) {
         }
 
         ride.setStatus(RideStatus.CANCELLED);
+        return rideRepository.saveRide(ride);
+    }
+
+    @Override
+    @Transactional
+    public Ride assignDriver(Long rideId, Long driverId) {
+        Ride ride = rideRepository.findByRideId(rideId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ride not found with id " + rideId));
+
+        if (ride.getStatus() == RideStatus.COMPLETED || ride.getStatus() == RideStatus.CANCELLED) {
+            throw new BadRequestException("Cannot assign a driver to a " + ride.getStatus() + " ride.");
+        }
+
+        if (ride.getStatus() == RideStatus.PAYMENT_PENDING) {
+            throw new BadRequestException("This ride is awaiting prepayment (UPI/Card) and can't be assigned yet.");
+        }
+
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() -> new ResourceNotFoundException("Driver not found with id " + driverId));
+
+        if (driver.getStatus() != DriverStatus.APPROVED) {
+            throw new BadRequestException("Driver must be APPROVED before being assigned a ride.");
+        }
+
+        boolean driverBusy = rideRepository.existsByDriver_IdAndStatusIn(driverId,
+                List.of(RideStatus.ASSIGNED, RideStatus.ACCEPTED, RideStatus.IN_PROGRESS));
+        if (driverBusy) {
+            throw new BadRequestException("This driver already has an active ride.");
+        }
+
+        ride.setDriver(driver);
+        ride.setStatus(RideStatus.ASSIGNED);
         return rideRepository.saveRide(ride);
     }
 
@@ -609,4 +643,31 @@ public void deleteUser(Long userId) {
 
         return dto;
     }
+    
+    @Override
+    public List<PassengerReportItemDto> getPassengerReport() {
+        List<User> passengers = userRepository.findAll().stream()
+                .filter(u -> u.getRole() == Role.PASSENGER)
+                .toList();
+        return passengers.stream().map(this::mapPassengerReport).toList();
+    }
+
+    private PassengerReportItemDto mapPassengerReport(User user) {
+        List<Ride> rides = rideRepository.findByPassenger_Id(user.getId());
+        double totalSpent = rides.stream()
+                .filter(r -> r.getStatus() == RideStatus.COMPLETED)
+                .mapToDouble(r -> r.getFare() != null ? r.getFare() : 0.0)
+                .sum();
+
+        PassengerReportItemDto dto = new PassengerReportItemDto();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setTotalTrips(rides.size());
+        dto.setTotalSpent(totalSpent);
+        return dto;
+    }
+    
+    
 }

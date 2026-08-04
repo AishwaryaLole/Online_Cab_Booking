@@ -32,4 +32,12 @@ public interface RideRepository extends JpaRepository<Ride, Long> {
     }
     
     List<Ride> findByDriver_IdAndStatus(Long driverId, RideStatus status);
+    
+    // Used to find a driver's current active ride (assigned, accepted, or in progress)
+    List<Ride> findByDriver_IdAndStatusIn(Long driverId, List<RideStatus> statuses);
+
+    // Used when auto-assigning a new booking, to skip drivers who are already busy
+    boolean existsByDriver_IdAndStatusIn(Long driverId, List<RideStatus> statuses);
+    
+    
 }

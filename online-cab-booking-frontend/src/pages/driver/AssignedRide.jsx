@@ -2,7 +2,14 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import useAuth from "../../hooks/useAuth";
 import { getDriverByUserId } from "../../services/driverService";
-import { getAssignedRides, acceptRide, rejectRide } from "../../services/rideService";
+import {
+  getAssignedRides,
+  acceptRide,
+  rejectRide,
+  startRide,
+  completeRide,
+} from "../../services/rideService";
+import { makePayment } from "../../services/paymentService";
 
 export default function AssignedRide() {
   const { userId } = useAuth();
@@ -61,6 +68,58 @@ export default function AssignedRide() {
     }
   };
 
+  const handleStart = async () => {
+    setActing(true);
+    try {
+      const res = await startRide(ride.id);
+      toast.success(res.message || "Ride started");
+      loadAssignedRide(driverId);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to start ride");
+    } finally {
+      setActing(false);
+    }
+  };
+
+  // For CASH rides, the driver taps this once they've physically collected
+  // the fare from the passenger at drop-off. This records the payment in the
+  // system - only after that does "Complete ride" become available.
+  const handleCollectCash = async () => {
+    setActing(true);
+    try {
+      const res = await makePayment({
+        rideId: ride.id,
+        paymentMethod: "CASH",
+        amount: ride.fare,
+      });
+      if (res.success) {
+        toast.success("Cash payment recorded");
+        loadAssignedRide(driverId);
+      } else {
+        toast.error(res.message || "Could not record cash payment");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Could not record cash payment");
+    } finally {
+      setActing(false);
+    }
+  };
+
+  const handleComplete = async () => {
+    setActing(true);
+    try {
+      const res = await completeRide(ride.id);
+      toast.success(res.message || "Ride completed");
+      // The ride is COMPLETED now, so it will no longer show up as "active"
+      // for this driver - loading again clears the card.
+      loadAssignedRide(driverId);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to complete ride");
+    } finally {
+      setActing(false);
+    }
+  };
+
   if (loading) return <p className="p-6 text-gray-500">Loading assigned ride...</p>;
 
   return (
@@ -89,19 +148,48 @@ export default function AssignedRide() {
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-500">Fare</p>
-              <p className="font-bold text-indigo-600">₹{ride.fare ?? "-"}</p>
+              <p className="font-bold text-indigo-600">
+                ₹{ride.fare != null ? Number(ride.fare).toFixed(1) : "-"}
+                {" "}
+                <span className="text-xs font-medium text-gray-400">({ride.paymentMethod})</span>
+              </p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <button onClick={handleAccept} disabled={acting}
-              className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-60">
-              Accept ride
-            </button>
-            <button onClick={handleReject} disabled={acting}
-              className="bg-red-500 text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-red-600 disabled:opacity-60">
-              Reject ride
-            </button>
+            {ride.status === "ASSIGNED" && (
+              <>
+                <button onClick={handleAccept} disabled={acting}
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-60">
+                  Accept ride
+                </button>
+                <button onClick={handleReject} disabled={acting}
+                  className="bg-red-500 text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-red-600 disabled:opacity-60">
+                  Reject ride
+                </button>
+              </>
+            )}
+
+            {ride.status === "ACCEPTED" && (
+              <button onClick={handleStart} disabled={acting}
+                className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:opacity-90 disabled:opacity-60">
+                Start ride
+              </button>
+            )}
+
+            {ride.status === "IN_PROGRESS" && !ride.paid && ride.paymentMethod === "CASH" && (
+              <button onClick={handleCollectCash} disabled={acting}
+                className="bg-amber-500 text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-amber-600 disabled:opacity-60">
+                Collect cash payment (₹{ride.fare != null ? Number(ride.fare).toFixed(1) : "-"})
+              </button>
+            )}
+
+            {ride.status === "IN_PROGRESS" && (ride.paid || ride.paymentMethod !== "CASH") && (
+              <button onClick={handleComplete} disabled={acting}
+                className="bg-green-600 text-white font-semibold px-5 py-2.5 rounded-lg hover:bg-green-700 disabled:opacity-60">
+                Complete ride
+              </button>
+            )}
           </div>
         </div>
       )}

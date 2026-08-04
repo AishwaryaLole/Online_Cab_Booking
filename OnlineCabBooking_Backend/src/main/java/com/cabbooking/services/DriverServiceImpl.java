@@ -40,17 +40,26 @@ public class DriverServiceImpl implements DriverService {
         Driver driver = new Driver();
 
         driver.setUser(user);
+
+        // set license
         driver.setLicenseNumber(driverDto.getLicenseNumber());
 
+        // default values
+        driver.setAvailability(false);
+        driver.setRating(0.0);
+        driver.setTotalRides(0);
+
+        // status
         if (driverDto.getStatus() != null) {
             driver.setStatus(DriverStatus.valueOf(driverDto.getStatus()));
+        } else {
+            driver.setStatus(DriverStatus.OFFLINE);
         }
 
         Driver savedDriver = driverRepository.save(driver);
 
         return convertToDto(savedDriver);
     }
-
    
 
     @Override
