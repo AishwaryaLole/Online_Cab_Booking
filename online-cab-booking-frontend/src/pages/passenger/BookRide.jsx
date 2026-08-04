@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Navigation2, Clock, IndianRupee, Loader2 } from "lucide-react";
+import { Navigation2, Clock, IndianRupee, Loader2, Smartphone, CreditCard, Banknote } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import LocationInput from "../../components/passenger/LocationInput";
 import RideMap from "../../components/passenger/RideMap";
 import { getRoute } from "../../services/mapService";
 import { bookRide } from "../../services/rideService";
 
-const BASE_FARE = 50; // flat starting fare in rupees
-const RATE_PER_KM = 12; // rupees per km
+const BASE_FARE = 12; // flat starting fare in rupees
+const RATE_PER_KM = 14; // rupees per km
+
+const PAYMENT_METHODS = [
+  { value: "CASH", label: "Cash", icon: Banknote },
+  { value: "UPI", label: "UPI", icon: Smartphone },
+  { value: "CARD", label: "Card", icon: CreditCard },
+];
 
 export default function BookRide() {
   const { userId } = useAuth();
@@ -26,6 +32,7 @@ export default function BookRide() {
   const [routeLoading, setRouteLoading] = useState(false);
 
   const [booking, setBooking] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("CASH");
 
   const fare =
     distanceKm != null
@@ -78,12 +85,25 @@ export default function BookRide() {
         dropLocation: drop.label,
         dropLatitude: drop.lat,
         dropLongitude: drop.lng,
+        // The backend recalculates the authoritative fare from these, but it
+        // needs them - without this the ride was saved with a null fare,
+        // which made payment impossible later.
+        distanceKm,
+        durationMin,
+        paymentMethod,
       });
 
       if (res.success) {
-        toast.success("Ride booked! Redirecting to payment...");
-        // Straight to the Payment page - no duplicate payment UI on this page.
-        navigate("/passenger/payment");
+        if (paymentMethod === "CASH") {
+          // Cash is paid to the driver at drop-off - the ride is already
+          // matched to a nearby driver, nothing more to do here.
+          toast.success("Ride booked! Looking for a nearby driver...");
+          navigate("/passenger/ride-history");
+        } else {
+          // UPI / Card must be paid up front before a driver is matched.
+          toast.success("Ride created! Please complete the payment to confirm your ride.");
+          navigate("/passenger/payment", { state: { rideId: res.data.id } });
+        }
       } else {
         toast.error(res.message || "Could not book ride.");
       }
@@ -198,13 +218,39 @@ export default function BookRide() {
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-2">Payment method</label>
+            <div className="grid grid-cols-3 gap-3">
+              {PAYMENT_METHODS.map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setPaymentMethod(value)}
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border py-3 text-xs font-semibold transition-colors ${
+                    paymentMethod === value
+                      ? "border-violet-500 bg-violet-50 text-violet-700"
+                      : "border-gray-200 text-gray-500 hover:bg-gray-50"
+                  }`}
+                >
+                  <Icon size={18} />
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400 mt-1.5">
+              {paymentMethod === "CASH"
+                ? "Pay the driver directly at drop-off."
+                : "You'll pay now, before a driver is assigned."}
+            </p>
+          </div>
+
           <button
             onClick={handleBookRide}
             disabled={!pickup || !drop || booking}
             className="w-full bg-gradient-to-r from-violet-500 to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl shadow-md shadow-violet-200 transition-opacity flex items-center justify-center gap-2"
           >
             {booking && <Loader2 size={18} className="animate-spin" />}
-            {booking ? "Booking..." : "Book ride"}
+            {booking ? "Booking..." : paymentMethod === "CASH" ? "Book ride" : "Continue to payment"}
           </button>
         </div>
       </div>

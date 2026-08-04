@@ -116,8 +116,8 @@ const RevenueReport = () => {
           </h3>
 
           <p className="text-3xl font-bold">
-            ₹ {summary.totalRevenue}
-          </p>
+  ₹ {Number(summary.totalRevenue || 0).toFixed(1)}
+</p>
 
         </div>
 
@@ -213,8 +213,8 @@ const RevenueReport = () => {
                       {report.driverName}
                     </td>
 
-                    <td className="px-4 py-3 font-semibold">
-                      ₹ {report.amount}
+                   <td className="px-4 py-3 font-semibold">
+                      ₹ {Number(report.amount || 0).toFixed(1)}
                     </td>
 
                     <td className="px-4 py-3">

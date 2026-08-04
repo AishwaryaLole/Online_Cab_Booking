@@ -38,44 +38,46 @@ export const rejectRide = async (rideId) => {
 };
 
 
-// NOTE: the backend has server.servlet.context-path=/api AND
-// RideController is mapped at "/api/rides", so the real path is
-// /api/api/rides/... . api.js's baseURL is already "http://localhost:8080/api",
-// so we only add "/api/rides/..." here.
+// NOTE: api.js's baseURL is already "http://localhost:8080/api" (see .env's
+// VITE_API_BASE_URL), and RideController is mapped at "/rides" (see
+// RideController.java: @RequestMapping("/rides")). So paths here must start
+// with "/rides/...", NOT "/api/rides/..." - adding "/api" again produced
+// "/api/api/rides/..." which 404'd on every call (book, history, cancel,
+// start, complete). This was the main reason bookings/history looked broken.
 
 // Book a new ride
 export const bookRide = async (payload) => {
-  const res = await api.post("/api/rides/book", payload);
+  const res = await api.post("/rides/book", payload);
   return res.data; // ApiResponse<RideResponseDTO>
 };
 
 // Get a single ride by id
 export const getRideById = async (rideId) => {
-  const res = await api.get(`/api/rides/${rideId}`);
+  const res = await api.get(`/rides/${rideId}`);
   return res.data;
 };
 
 // Get ride history for a passenger
 export const getRideHistory = async (passengerId) => {
-  const res = await api.get(`/api/rides/history/${passengerId}`);
+  const res = await api.get(`/rides/history/${passengerId}`);
   return res.data;
 };
 
 // Cancel a ride
 export const cancelRide = async (rideId) => {
-  const res = await api.put(`/api/rides/cancel/${rideId}`);
+  const res = await api.put(`/rides/cancel/${rideId}`);
   return res.data;
 };
 
 // Start a ride
 export const startRide = async (rideId) => {
-  const res = await api.put(`/api/rides/start/${rideId}`);
+  const res = await api.put(`/rides/start/${rideId}`);
   return res.data;
 };
 
 // Complete a ride
 export const completeRide = async (rideId) => {
-  const res = await api.put(`/api/rides/complete/${rideId}`);
+  const res = await api.put(`/rides/complete/${rideId}`);
   return res.data;
 };
 

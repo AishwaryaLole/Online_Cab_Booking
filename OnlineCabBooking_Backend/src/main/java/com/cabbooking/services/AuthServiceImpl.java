@@ -19,8 +19,12 @@ import com.cabbooking.dto.VerifyOtpRequest;
 import com.cabbooking.entities.OtpVerification;
 import org.springframework.transaction.annotation.Transactional;
 import com.cabbooking.entities.User;
+import com.cabbooking.repository.DriverRepository;
 import com.cabbooking.repository.OtpVerificationRepository;
 import com.cabbooking.repository.UserRepository;
+import com.cabbooking.entities.Driver;
+import com.cabbooking.enums.DriverStatus;
+import com.cabbooking.repository.DriverRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,8 +38,10 @@ public class AuthServiceImpl implements AuthServices {
 	private final OtpVerificationRepository otpVerificationRepository;
 	private final EmailService emailService;
 	private final JwtUtil jwtUtil;
+	private final DriverRepository driverRepository;
 	
 	
+	private String licenseNumber;
 	
 	private String generateOtp() {
 		
@@ -59,8 +65,25 @@ public class AuthServiceImpl implements AuthServices {
 	    
 	    User user = modelMapper.map(request, User.class);
 	    user.setPassword(passwordEncoder.encode(request.getPassword()));
-	    userRepository.save(user);
+	   
+	    User savedUser = userRepository.save(user);
 
+	    if (savedUser.getRole().name().equals("DRIVER")) {
+
+	    	Driver driver = new Driver();
+
+	    	driver.setUser(user);
+	    	driver.setLicenseNumber(request.getLicenseNumber());
+	    	driver.setStatus(DriverStatus.OFFLINE);
+	    	driver.setAvailability(false);
+	    	driver.setRating(0.0);
+	    	driver.setTotalRides(0);
+
+	    	driverRepository.save(driver);
+	    }
+
+	    
+	    
 	    otpVerificationRepository.deleteAllByEmail(user.getEmail());
 
 	    OtpVerification otpVerification = new OtpVerification();
@@ -185,14 +208,15 @@ public class AuthServiceImpl implements AuthServices {
 	        return "User not found";
 	    }
 
-	    otpVerificationRepository.deleteAllByEmail(request.getEmail());
-	    OtpVerification otpVerification = new OtpVerification();
+	    OtpVerification otpVerification = otpVerificationRepository.findByEmail(request.getEmail())
+	            .orElse(null);
 
-	    if (otpVerification == null) 
+	    if (otpVerification == null) {
 	        return "OTP not found";
-	    
+	    }
 
 	    if (otpVerification.getExpiryTime().isBefore(LocalDateTime.now())) {
+	        otpVerificationRepository.deleteAllByEmail(request.getEmail());
 	        return "OTP expired";
 	    }
 
@@ -204,7 +228,7 @@ public class AuthServiceImpl implements AuthServices {
 
 	    userRepository.save(user);
 
-	    otpVerificationRepository.delete(otpVerification);
+	    otpVerificationRepository.deleteAllByEmail(request.getEmail());
 
 	    return "Password reset successfully";
 	}

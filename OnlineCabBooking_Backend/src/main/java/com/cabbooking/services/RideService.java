@@ -36,4 +36,9 @@ public interface RideService {
 	
 	List<RideResponseDTO> getRideHistoryByDriver(Long driverId);
 
+	// Called by PaymentServiceImpl right after a UPI/Card prepayment succeeds -
+	// this is the moment a PAYMENT_PENDING ride actually gets matched to a
+	// nearby driver.
+	RideResponseDTO assignNearestDriverAfterPayment(Long rideId);
+
 }

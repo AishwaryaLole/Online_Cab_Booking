@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { searchPlace } from "../../services/mapService";
+import { searchLocation } from "../../services/mapService";
 
 export default function SearchLocation({ placeholder, onSelect }) {
   const [query, setQuery] = useState("");
@@ -14,7 +14,7 @@ export default function SearchLocation({ placeholder, onSelect }) {
     if (value.trim().length < 3) { setResults([]); return; }
 
     timerRef.current = setTimeout(async () => {
-      const res = await searchPlace(value);
+      const res = await searchLocation(value);
       if (res.success) { setResults(res.data); setShowList(true); }
     }, 500);
   };

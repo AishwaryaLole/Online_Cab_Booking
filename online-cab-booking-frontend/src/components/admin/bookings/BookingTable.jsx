@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Eye,
   MapPin,
@@ -6,7 +7,10 @@ import {
   IndianRupee,
 } from "lucide-react";
 
-const BookingTable = ({ bookings, onView }) => {
+const BookingTable = ({ bookings, onView, drivers = [], onAssignDriver }) => {
+  const [pickerRideId, setPickerRideId] = useState(null);
+  const [pickedDriverId, setPickedDriverId] = useState("");
+
   if (!bookings || bookings.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-10 text-center">
@@ -191,7 +195,7 @@ const BookingTable = ({ bookings, onView }) => {
 
                     <IndianRupee size={15} />
 
-                    {booking.fare}
+                     {Number(booking.fare || 0).toFixed(1)}
 
                   </div>
 
@@ -215,7 +219,7 @@ const BookingTable = ({ bookings, onView }) => {
 
                 <td className="px-4 py-4">
 
-                  <div className="flex justify-center">
+                  <div className="flex flex-col items-center gap-2">
 
                     <button
                       onClick={() => onView(booking)}
@@ -223,6 +227,43 @@ const BookingTable = ({ bookings, onView }) => {
                     >
                       <Eye size={18} />
                     </button>
+
+                    {["REQUESTED", "ASSIGNED"].includes(booking.status) && (
+                      pickerRideId === booking.id ? (
+                        <div className="flex items-center gap-1">
+                          <select
+                            value={pickedDriverId}
+                            onChange={(e) => setPickedDriverId(e.target.value)}
+                            className="border rounded px-2 py-1 text-xs"
+                          >
+                            <option value="">Select driver</option>
+                            {drivers.map((d) => (
+                              <option key={d.driverId} value={d.driverId}>
+                                {d.name || `Driver #${d.driverId}`}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            disabled={!pickedDriverId}
+                            onClick={() => {
+                              onAssignDriver(booking.id, pickedDriverId);
+                              setPickerRideId(null);
+                              setPickedDriverId("");
+                            }}
+                            className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-xs px-2 py-1 rounded"
+                          >
+                            Assign
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setPickerRideId(booking.id)}
+                          className="text-xs text-indigo-600 hover:underline"
+                        >
+                          Assign driver
+                        </button>
+                      )
+                    )}
 
                   </div>
 

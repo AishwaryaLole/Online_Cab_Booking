@@ -19,6 +19,7 @@ import com.cabbooking.dto.BookingAdminResponseDto;
 import com.cabbooking.dto.DriverAdminResponseDto;
 import com.cabbooking.dto.DriverReportDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
+import com.cabbooking.dto.PassengerReportItemDto;
 import com.cabbooking.dto.RevenueReportDto;
 import com.cabbooking.dto.RideAdminResponseDto;
 import com.cabbooking.dto.RideCancellationRequest;
@@ -116,6 +117,14 @@ public class AdminController {
                 toRideAdminResponseDto(ride)));
     }
 
+    @PutMapping("/rides/{rideId}/assign-driver/{driverId}")
+    public ResponseEntity<ApiResponse<RideAdminResponseDto>> assignDriver(@PathVariable Long rideId,
+            @PathVariable Long driverId) {
+        Ride ride = adminService.assignDriver(rideId, driverId);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver assigned successfully.",
+                toRideAdminResponseDto(ride)));
+    }
+
     @GetMapping("/reports/bookings")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getBookingReport() {
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Booking report generated.",
@@ -163,6 +172,13 @@ public class AdminController {
         ));
 
        
+    }
+    
+    @GetMapping("/reports/passengers")
+    public ResponseEntity<ApiResponse<List<PassengerReportItemDto>>> getPassengerReport() {
+        List<PassengerReportItemDto> report = adminService.getPassengerReport();
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true,
+                "Passenger report fetched successfully", report));
     }
 
     private DriverAdminResponseDto toDriverAdminResponseDto(Driver driver) {
