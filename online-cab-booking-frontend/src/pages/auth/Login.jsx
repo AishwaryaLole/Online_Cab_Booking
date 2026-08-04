@@ -15,13 +15,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleDemoFill = (role) => {
-    if (role === "PASSENGER") setEmail("passenger@demo.com");
-    if (role === "DRIVER") setEmail("driver@demo.com");
-    if (role === "ADMIN") setEmail("admin@demo.com");
-    setPassword("123456");
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -118,33 +111,17 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="text-[11px] text-gray-400 tracking-wide">
-              ONE-CLICK DEMO TEST LOGINS
-            </span>
-            <div className="flex-1 h-px bg-gray-200"></div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 mb-6">
-            <button onClick={() => handleDemoFill("PASSENGER")} className="bg-indigo-50 text-indigo-600 text-sm font-medium py-2 rounded-lg hover:bg-indigo-100">
-              Passenger
-            </button>
-            <button onClick={() => handleDemoFill("DRIVER")} className="bg-yellow-50 text-yellow-600 text-sm font-medium py-2 rounded-lg hover:bg-yellow-100">
-              Driver
-            </button>
-            <button onClick={() => handleDemoFill("ADMIN")} className="bg-blue-50 text-blue-600 text-sm font-medium py-2 rounded-lg hover:bg-blue-100">
-              Admin
-            </button>
-          </div>
-
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-gray-500 mt-6">
             Don't have an account?{" "}
+            <br></br>
             <Link to="/register/passenger" className="text-indigo-600 font-semibold">Register Passenger</Link>{" "}
             ·{" "}
-            <Link to="/register/driver" className="text-orange-500 font-semibold">Register Driver</Link>
+            <Link to="/register/driver" className="text-orange-500 font-semibold">Register Driver</Link>{" "}
+            ·{" "}
+            <Link to="/register/admin" className="text-purple-600 font-semibold">Register Admin</Link>
           </p>
         </div>
+        
       </div>
     </div>
   );

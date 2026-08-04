@@ -1,1 +1,17 @@
+# Environment files
+.env
+AI_Microservice/.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
 /.metadata/

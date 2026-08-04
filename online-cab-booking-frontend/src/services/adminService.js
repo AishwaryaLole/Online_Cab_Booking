@@ -95,6 +95,9 @@ suspendDriver: (id) =>
   getBookingById: (id) =>
     API.get(`/admins/bookings/${id}`),
 
+  assignDriver: (rideId, driverId) =>
+    API.put(`/admins/rides/${rideId}/assign-driver/${driverId}`),
+
   // =====================================
   // Reports
   // =====================================

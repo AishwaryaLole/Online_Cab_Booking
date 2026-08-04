@@ -12,7 +12,7 @@ import com.cabbooking.dto.RideResponseDTO;
 import com.cabbooking.services.RideService;
 
 @RestController
-@RequestMapping("/api/rides")
+@RequestMapping("/rides")
 public class RideController {
 
     private final RideService rideService;
@@ -123,4 +123,33 @@ public class RideController {
                 )
         );
     }
+    
+ // Get Assigned (pending) Rides for a Driver
+    @GetMapping("/driver/{driverId}/assigned")
+    public ResponseEntity<ApiResponse<List<RideResponseDTO>>> getAssignedRides(@PathVariable Long driverId) {
+        List<RideResponseDTO> response = rideService.getAssignedRides(driverId);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Assigned rides fetched.", response));
+    }
+
+    // Get Ride History for a Driver
+    @GetMapping("/driver/{driverId}/history")
+    public ResponseEntity<ApiResponse<List<RideResponseDTO>>> getDriverRideHistory(@PathVariable Long driverId) {
+        List<RideResponseDTO> response = rideService.getRideHistoryByDriver(driverId);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Driver ride history fetched.", response));
+    }
+
+    // Accept Ride
+    @PutMapping("/{id}/accept")
+    public ResponseEntity<ApiResponse<RideResponseDTO>> acceptRide(@PathVariable Long id) {
+        RideResponseDTO response = rideService.acceptRide(id);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Ride accepted.", response));
+    }
+
+    // Reject Ride
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<ApiResponse<RideResponseDTO>> rejectRide(@PathVariable Long id) {
+        RideResponseDTO response = rideService.rejectRide(id);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), true, "Ride rejected.", response));
+    }
+    
 }

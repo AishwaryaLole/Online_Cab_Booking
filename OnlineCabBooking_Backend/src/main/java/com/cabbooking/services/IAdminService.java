@@ -6,6 +6,7 @@ import java.util.Map;
 import com.cabbooking.dto.BookingAdminResponseDto;
 import com.cabbooking.dto.DriverReportDto;
 import com.cabbooking.dto.DriverStatusUpdateRequest;
+import com.cabbooking.dto.PassengerReportItemDto;
 import com.cabbooking.dto.RevenueReportDto;
 import com.cabbooking.dto.RideCancellationRequest;
 import com.cabbooking.dto.UserUpdateRequest;
@@ -32,6 +33,8 @@ public interface IAdminService {
 
     Ride cancelRide(Long rideId, RideCancellationRequest request);
 
+    Ride assignDriver(Long rideId, Long driverId);
+
     Map<String, Object> getBookingReport();
 
     RevenueReportDto getRevenueReport();
@@ -43,4 +46,6 @@ public interface IAdminService {
     List<Driver> getAllDrivers();
     
     List<BookingAdminResponseDto> getAllBookings();
+    
+    List<PassengerReportItemDto> getPassengerReport();
 }

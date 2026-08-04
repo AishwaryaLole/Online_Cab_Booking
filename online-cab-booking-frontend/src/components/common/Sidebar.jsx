@@ -10,14 +10,15 @@ import {
   ClipboardList,
   FileBarChart2,
   IndianRupee,
+  MapPin,
   LogOut
 } from "lucide-react";
 
-import { useAuth } from "../../hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
 
 function Sidebar() {
 
-  const { user, logout } = useAuth();
+  const { role, logout } = useAuth();
 
   const location = useLocation();
 
@@ -32,24 +33,24 @@ function Sidebar() {
     ],
 
     DRIVER: [
-      { title: "Dashboard", path: "/driver", icon: LayoutDashboard },
-      { title: "Ride Requests", path: "/driver/ride-requests", icon: CarTaxiFront },
-      { title: "Earnings", path: "/driver/earnings", icon: IndianRupee },
-      { title: "Vehicle Details", path: "/driver/vehicle-details", icon: Car },
+      { title: "Dashboard", path: "/driver/dashboard", icon: LayoutDashboard },
+      { title: "Assigned Ride", path: "/driver/assigned-ride", icon: CarTaxiFront },
+      { title: "Vehicle", path: "/driver/vehicle", icon: Car },
+      { title: "Location", path: "/driver/location", icon: MapPin },
       { title: "Profile", path: "/driver/profile", icon: User },
     ],
 
     ADMIN: [
-      { title: "Dashboard", path: "/admin", icon: LayoutDashboard },
+      { title: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
       { title: "Users", path: "/admin/users", icon: Users },
       { title: "Drivers", path: "/admin/drivers", icon: Car },
       { title: "Bookings", path: "/admin/bookings", icon: ClipboardList },
-      { title: "Reports", path: "/admin/reports", icon: FileBarChart2 },
+      { title: "Reports", path: "/admin/reports/bookings", icon: FileBarChart2 },
     ]
 
   };
 
-  const menu = menus[user?.role] || [];
+  const menu = menus[role] || [];
 
   return (
 

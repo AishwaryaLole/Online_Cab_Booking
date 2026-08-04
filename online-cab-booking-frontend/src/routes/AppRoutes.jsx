@@ -44,7 +44,7 @@ import Profile from "../pages/passenger/Profile";
 import Payment from "../pages/passenger/Payment";
 import Rating from "../pages/passenger/Rating";
 
-// Route Protection
+// Protected Routes
 import PrivateRoute from "./PrivateRoute";
 import RoleRoute from "./RoleRoute";
 
@@ -54,66 +54,128 @@ export default function AppRoutes() {
       <BrowserRouter>
         <Routes>
 
-          {/* ================= Public Routes ================= */}
+          {/* Public Routes */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/register/passenger" element={<PassengerRegister />} />
-            <Route path="/register/driver" element={<DriverRegister />} />
-            <Route path="/register/admin" element={<AdminRegister />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />}
+            <Route
+              path="/register/passenger"
+              element={<PassengerRegister />}
+            />
+            <Route
+              path="/register/driver"
+              element={<DriverRegister />}
+            />
+            <Route
+              path="/register/admin"
+              element={<AdminRegister />}
+            />
+            <Route
+              path="/forgot-password"
+              element={<ForgotPassword />}
+            />
+            <Route
+              path="/reset-password"
+              element={<ResetPassword />}
             />
           </Route>
 
-          {/* ================= Admin Routes ================= */}
+          {/* Admin Routes */}
           <Route element={<PrivateRoute />}>
             <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
-                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route
+                  path="dashboard"
+                  element={<AdminDashboard />}
+                />
+
                 <Route path="users" element={<UserList />} />
                 <Route path="drivers" element={<DriverList />} />
                 <Route path="bookings" element={<BookingList />} />
-                <Route path="reports/bookings" element={<BookingReport />}/>
-                <Route path="reports/revenue" element={<RevenueReport />} />
-                <Route path="reports/drivers" element={<DriverReport />} />
-                <Route path="reports/passengers" element={<PassengerReport />}  />
-              </Route>
-            </Route>
-          </Route>
 
-          {/* ================= Driver Routes ================= */}
-          <Route element={<PrivateRoute />}>
-            <Route element={<RoleRoute allowedRoles={["DRIVER"]} />}>
-              <Route path="/driver" element={<DriverLayout />}>
-                <Route index element={<DriverDashboard />} />
-                <Route path="dashboard" element={<DriverDashboard />} />
-                <Route path="profile" element={<DriverProfile />} />
-                <Route path="vehicle" element={<Vehicle />} />
-                <Route path="location" element={<Location />} />
-                <Route path="assigned-ride" element={<AssignedRide />}/>
-              </Route>
-            </Route>
-          </Route>
-
-          {/* ================= Passenger Routes ================= */}
-          <Route element={<PrivateRoute />}>
-            <Route element={<RoleRoute allowedRoles={["PASSENGER"]} />}>
-              <Route path="/passenger" element={<PassengerLayout />}>
-                <Route index element={<PassengerDashboard />} />
-                <Route path="dashboard" element={<PassengerDashboard />}/>
-                <Route path="book-ride" element={<BookRide />}/>
-                <Route path="ride-history" element={<RideHistory />} />
-                <Route path="profile" element={<Profile />} />
-                <Route path="payment" element={<Payment />}/>
-                <Route path="rating" element={<Rating />}
+                <Route
+                  path="reports/bookings"
+                  element={<BookingReport />}
+                />
+                <Route
+                  path="reports/revenue"
+                  element={<RevenueReport />}
+                />
+                <Route
+                  path="reports/drivers"
+                  element={<DriverReport />}
+                />
+                <Route
+                  path="reports/passengers"
+                  element={<PassengerReport />}
                 />
               </Route>
             </Route>
           </Route>
 
-          {/* 404 Route */}
+          {/* Driver Routes */}
+          <Route element={<PrivateRoute />}>
+            <Route element={<RoleRoute allowedRoles={["DRIVER"]} />}>
+              <Route path="/driver" element={<DriverLayout />}>
+                <Route index element={<DriverDashboard />} />
+                <Route
+                  path="dashboard"
+                  element={<DriverDashboard />}
+                />
+                <Route
+                  path="profile"
+                  element={<DriverProfile />}
+                />
+                <Route
+                  path="vehicle"
+                  element={<Vehicle />}
+                />
+                <Route
+                  path="location"
+                  element={<Location />}
+                />
+                <Route
+                  path="assigned-ride"
+                  element={<AssignedRide />}
+                />
+              </Route>
+            </Route>
+          </Route>
+
+          {/* Passenger Routes */}
+          <Route element={<PrivateRoute />}>
+            <Route element={<RoleRoute allowedRoles={["PASSENGER"]} />}>
+              <Route path="/passenger" element={<PassengerLayout />}>
+                <Route index element={<PassengerDashboard />} />
+                <Route
+                  path="dashboard"
+                  element={<PassengerDashboard />}
+                />
+                <Route
+                  path="book-ride"
+                  element={<BookRide />}
+                />
+                <Route
+                  path="ride-history"
+                  element={<RideHistory />}
+                />
+                <Route
+                  path="profile"
+                  element={<Profile />}
+                />
+                <Route
+                  path="payment"
+                  element={<Payment />}
+                />
+                <Route
+                  path="rating"
+                  element={<Rating />}
+                />
+              </Route>
+            </Route>
+          </Route>
+
           {/* <Route path="*" element={<NotFound />} /> */}
 
         </Routes>
