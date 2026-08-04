@@ -47,6 +47,7 @@ import Rating from "../pages/passenger/Rating";
 // Protected Routes
 import PrivateRoute from "./PrivateRoute";
 import RoleRoute from "./RoleRoute";
+import ChatWidget from "../components/common/ChatWidget";
 
 export default function AppRoutes() {
   return (
@@ -190,6 +191,7 @@ export default function AppRoutes() {
           draggable
           theme="light"
         />
+        <ChatWidget/>
       </BrowserRouter>
     </AuthProvider>
   );
