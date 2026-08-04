@@ -18,13 +18,8 @@
     "framer-motion": "^12.23.24",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
-<<<<<<< HEAD
-    "leaflet-routing-machine": "^3.2.12",
-    "lucide-react": "^1.27.0",
-=======
 
     "lucide-react": "^1.26.0",
->>>>>>> 0a0591cd9d2f2167ec45a18eb85026850bf6a8e9
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.65.0",
