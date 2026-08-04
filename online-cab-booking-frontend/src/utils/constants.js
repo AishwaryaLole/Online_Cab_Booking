@@ -23,5 +23,5 @@ export const DASHBOARD_ROUTES = {
 
 export const NOMINATIM_URL = "https://nominatim.openstreetmap.org";
 export const OSRM_URL = "https://router.project-osrm.org";
-export const FARE_PER_KM = 15;   // ₹15 - ₹18 per km, 16 used as the charged rate
-export const BASE_FARE = 10;     // fixed pickup charge
+export const FARE_PER_KM = 14;   // ₹12 - ₹14 per km, 12 used as the charged rate
+export const BASE_FARE = 12;     // fixed pickup charge
