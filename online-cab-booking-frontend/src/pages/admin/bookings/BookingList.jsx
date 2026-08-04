@@ -6,6 +6,7 @@ import BookingModal from "../../../components/admin/bookings/BookingModel";
 
 const BookingList = () => {
   const [bookings, setBookings] = useState([]);
+  const [drivers, setDrivers] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
   const [search, setSearch] = useState("");
@@ -14,8 +15,7 @@ const BookingList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function loadBookings() {
+  const loadBookings = async () => {
     try {
       setLoading(true);
 
@@ -31,8 +31,28 @@ const BookingList = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
     loadBookings();
+
+    // Load approved drivers so we can offer them in the "Assign driver" picker.
+    adminService
+      .getDrivers()
+      .then((res) => {
+        const all = res.data.data || [];
+        setDrivers(all.filter((d) => d.status === "APPROVED"));
+      })
+      .catch((err) => console.error(err));
   }, []);
+
+  const handleAssignDriver = async (rideId, driverId) => {
+    try {
+      await adminService.assignDriver(rideId, driverId);
+      await loadBookings();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to assign driver.");
+    }
+  };
 
   
 
@@ -121,6 +141,8 @@ const BookingList = () => {
       <BookingTable
         bookings={filteredBookings}
         onView={setSelectedBooking}
+        drivers={drivers}
+        onAssignDriver={handleAssignDriver}
       />
 
       {/* Modal */}

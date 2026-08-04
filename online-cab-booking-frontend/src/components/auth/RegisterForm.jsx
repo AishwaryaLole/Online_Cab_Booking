@@ -1,23 +1,21 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { User, Mail, Phone, Lock } from "lucide-react";
+import { User, Mail, Phone, Lock, IdCard } from "lucide-react";
 import { registerUser, verifyOtp, resendOtp } from "../../services/authService";
 import { isValidEmail, isValidPhone, isValidPassword, doPasswordsMatch, isValidOtp } from "../../utils/validators";
 import { AUTH_ROUTES } from "../../utils/constants";
 import OTPInput from "./OTPInput";
 
 export default function RegisterForm({ role, title }) {
-  
+
   const navigate = useNavigate();
   const [stage, setStage] = useState("form");
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "", licenseNumber: "" });
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(60);
- console.log("CURRENT STAGE:", stage);
 
- 
   useEffect(() => {
     if (stage !== "otp" || timer <= 0) return;
     const t = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -33,6 +31,7 @@ export default function RegisterForm({ role, title }) {
     if (!isValidPhone(form.phone)) return toast.error("Enter a valid 10-digit phone number");
     if (!isValidPassword(form.password)) return toast.error("Password must be at least 6 characters");
     if (!doPasswordsMatch(form.password, form.confirmPassword)) return toast.error("Passwords do not match");
+    if (role === "DRIVER" && !form.licenseNumber.trim()) return toast.error("License number is required");
 
     setLoading(true);
     const res = await registerUser({
@@ -41,10 +40,9 @@ export default function RegisterForm({ role, title }) {
       phone: form.phone,
       password: form.password,
       role,
+      licenseNumber: role === "DRIVER" ? form.licenseNumber : undefined,
     });
     setLoading(false);
-
-    console.log("register response:", res);
 
     if (res.success) {
       toast.success(res.message || "Registered successfully");
@@ -122,6 +120,17 @@ export default function RegisterForm({ role, title }) {
                 placeholder="9876543210" className="w-full outline-none text-sm bg-transparent" />
             </div>
           </div>
+
+          {role === "DRIVER" && (
+            <div>
+              <label className="text-xs font-bold text-slate-600 uppercase block mb-1">License Number</label>
+              <div className="flex items-center border border-slate-200 rounded-xl px-3 py-2.5 focus-within:border-purple-600">
+                <IdCard className="w-4 h-4 text-purple-600 mr-2" />
+                <input type="text" name="licenseNumber" required value={form.licenseNumber} onChange={handleChange}
+                  placeholder="DL0120200012345" className="w-full outline-none text-sm bg-transparent" />
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="text-xs font-bold text-slate-600 uppercase block mb-1">Password</label>

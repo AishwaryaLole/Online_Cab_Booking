@@ -1,29 +1,38 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Wallet, CreditCard, Banknote, Smartphone } from "lucide-react";
+import { Wallet, CreditCard, Smartphone } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import { getRideHistory } from "../../services/rideService";
 import { makePayment, getPaymentHistory } from "../../services/paymentService";
 import StatusBadge from "./StatusBadge";
 
+// Cash is intentionally not offered here - cash rides are paid to the driver
+// at drop-off (see the driver's "Collect cash payment" step) and never sit
+// in PAYMENT_PENDING waiting on the passenger.
 const METHODS = [
   { value: "UPI", label: "UPI", icon: Smartphone },
   { value: "CARD", label: "Card", icon: CreditCard },
-  { value: "CASH", label: "Cash", icon: Banknote },
 ];
 
 /**
- * Reusable "Pay for a ride" + "Payment history" block.
- * Used on both the Payment page and the bottom of the Book Ride page.
+ * "Pay for a ride" + "Payment history" block.
+ * Only rides booked with UPI/Card show up here - they sit in PAYMENT_PENDING
+ * (no driver yet) until this payment succeeds, at which point the backend
+ * matches the nearest available driver.
  */
 export default function PaymentPanel() {
   const { userId } = useAuth();
+  const location = useLocation();
+  // BookRide.jsx redirects here with { state: { rideId } } right after
+  // creating a UPI/Card ride, so we can preselect it automatically.
+  const preselectedRideId = location.state?.rideId;
 
   const [rides, setRides] = useState([]);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [selectedRideId, setSelectedRideId] = useState("");
+  const [selectedRideId, setSelectedRideId] = useState(preselectedRideId ?? "");
   const [method, setMethod] = useState("UPI");
   const [paying, setPaying] = useState(false);
 
@@ -49,13 +58,12 @@ export default function PaymentPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  // Rides that are completed and don't yet have a successful payment
-  const payableRides = useMemo(() => {
-    const paidRideIds = new Set(
-      payments.filter((p) => p.paymentStatus === "SUCCESS").map((p) => p.rideId)
-    );
-    return rides.filter((r) => r.status === "COMPLETED" && !paidRideIds.has(r.id));
-  }, [rides, payments]);
+  // Rides waiting on an upfront (UPI/Card) payment - this is the only
+  // status a passenger ever pays for directly.
+  const payableRides = useMemo(
+    () => rides.filter((r) => r.status === "PAYMENT_PENDING"),
+    [rides]
+  );
 
   const selectedRide = rides.find((r) => r.id === Number(selectedRideId));
 
@@ -72,7 +80,7 @@ export default function PaymentPanel() {
         amount: selectedRide?.fare ?? 0,
       });
       if (res.success) {
-        toast.success("Payment successful!");
+        toast.success("Payment successful! Looking for a nearby driver...");
         setSelectedRideId("");
         loadData();
       } else {
@@ -101,20 +109,23 @@ export default function PaymentPanel() {
             className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
           >
             <option value="">
-              {payableRides.length === 0 ? "No rides pending payment" : "Choose a completed ride"}
+              {payableRides.length === 0 ? "No rides awaiting payment" : "Choose a ride"}
             </option>
             {payableRides.map((r) => (
               <option key={r.id} value={r.id}>
                 RD-{r.id} · {r.pickupLocation} → {r.dropLocation}
-                {r.fare != null ? ` · ₹${r.fare}` : ""}
+                {r.fare != null ? ` · ₹${Number(r.fare).toFixed(1)}` : ""}
               </option>
             ))}
           </select>
+          <p className="text-xs text-gray-400 mt-1.5">
+            Cash rides don't appear here - pay your driver directly at drop-off.
+          </p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-600 mb-2">Payment method</label>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {METHODS.map(({ value, label, icon: Icon }) => (
               <button
                 key={value}
@@ -136,7 +147,7 @@ export default function PaymentPanel() {
         <div className="flex justify-between items-center bg-gray-50 rounded-xl px-4 py-3 text-sm">
           <span className="text-gray-500">Amount</span>
           <span className="font-bold text-gray-900">
-            ₹{selectedRide?.fare ?? 0}
+            ₹{Number(selectedRide?.fare ?? 0).toFixed(1)}
           </span>
         </div>
 
@@ -175,7 +186,7 @@ export default function PaymentPanel() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-gray-900">₹{p.amount}</p>
+                    <p className="font-bold text-gray-900">₹{Number(p.amount).toFixed(1)}</p>
                     <StatusBadge status={p.paymentStatus} />
                   </div>
                 </div>
