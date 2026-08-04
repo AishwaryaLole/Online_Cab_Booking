@@ -1,11 +1,10 @@
-function AdminRegister() {
+import RegisterForm from "../../components/auth/RegisterForm";
+import { ROLES } from "../../utils/constants";
+
+export default function AdminRegister() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-bold text-blue-600">
-        Admin Registration
-      </h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-purple-50 to-slate-100 p-4">
+      <RegisterForm role={ROLES.ADMIN} title="Admin Registration" />
     </div>
   );
 }
-
-export default AdminRegister;

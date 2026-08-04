@@ -4,6 +4,7 @@ package com.cabbooking.entities;
 
 import java.time.LocalDateTime;
 
+import com.cabbooking.enums.PaymentMethod;
 import com.cabbooking.enums.RideStatus;
 
 import jakarta.persistence.*;
@@ -80,6 +81,15 @@ public class Ride {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RideStatus status = RideStatus.REQUESTED;
+
+    // CASH = pay the driver at drop-off (after ride is booked immediately).
+    // UPI / CARD = must be paid up front before a driver is assigned.
+    // Nullable at the DB level on purpose: adding a NOT NULL column via
+    // Hibernate's ddl-auto=update fails on a table that already has rows.
+    // Existing rows will read as null; treat null as CASH in code.
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method")
+    private PaymentMethod paymentMethod = PaymentMethod.CASH;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

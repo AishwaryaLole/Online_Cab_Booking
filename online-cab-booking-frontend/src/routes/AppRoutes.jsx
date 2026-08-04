@@ -1,137 +1,196 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// Layouts
-import MainLayout from "../layouts/MainLayout";
-import PassengerLayout from "../layouts/PassengerLayout";
-import DriverLayout from "../layouts/DriverLayout";
-import AdminLayout from "../layouts/AdminLayout";
-
-// Route Protection
-import PrivateRoute from "./PrivateRoute";
-import RoleRoute from "./RoleRoute";
+import { AuthProvider } from "../context/AuthContext";
 
 // Public Pages
 import Landing from "../pages/Landing";
 import Login from "../pages/auth/Login";
 import PassengerRegister from "../pages/auth/PassengerRegister";
 import DriverRegister from "../pages/auth/DriverRegister";
-import VerifyOTP from "../pages/auth/VerifyOTP";
+import AdminRegister from "../pages/auth/AdminRegister";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
-import AdminRegister from "../pages/auth/AdminRegister";
-import NotFound from "../pages/NotFound";
+
+// Layouts
+import MainLayout from "../layouts/MainLayout";
+import AdminLayout from "../layouts/AdminLayout";
+import DriverLayout from "../layouts/DriverLayout";
+import PassengerLayout from "../layouts/PassengerLayout";
+
+// Admin Pages
+import AdminDashboard from "../pages/admin/Dashboard";
+import UserList from "../pages/admin/users/UserList";
+import DriverList from "../pages/admin/drivers/DriverList";
+import BookingList from "../pages/admin/bookings/BookingList";
+import BookingReport from "../pages/admin/reports/BookingReport";
+import RevenueReport from "../pages/admin/reports/RevenueReport";
+import DriverReport from "../pages/admin/reports/DriverReport";
+import PassengerReport from "../pages/admin/reports/PassengerReport";
+
+// Driver Pages
+import DriverDashboard from "../pages/driver/Dashboard";
+import DriverProfile from "../pages/driver/DriverProfile";
+import Vehicle from "../pages/driver/Vehicle";
+import Location from "../pages/driver/Location";
+import AssignedRide from "../pages/driver/AssignedRide";
 
 // Passenger Pages
-import PassengerDashboard from "../pages/passenger/Dashboard";
+import PassengerDashboard from "../pages/passenger/PassengerDashboard";
 import BookRide from "../pages/passenger/BookRide";
 import PassengerRideHistory from "../pages/passenger/RideHistory";
 import PassengerProfile from "../pages/passenger/Profile";
 import Payment from "../pages/passenger/Payment";
+import Rating from "../pages/passenger/Rating";
 
-// Driver Pages
-import DriverDashboard from "../pages/driver/Dashboard";
-import RideRequests from "../pages/driver/RideRequests";
-import DriverRideHistory from "../pages/driver/RideHistory";
-import Earnings from "../pages/driver/Earnings";
-import DriverProfile from "../pages/driver/Profile";
-import VehicleDetails from "../pages/driver/VehicleDetails";
-import Availability from "../pages/driver/Availability";
-import CurrentRide from "../pages/driver/CurrentRide";
-import DriverMap from "../components/driver/DriverMap";
-import RideHistoryPage from "../pages/driver/RideHistoryPage";
+// Protected Routes
+import PrivateRoute from "./PrivateRoute";
+import RoleRoute from "./RoleRoute";
 
-{/*
-// Admin Pages
-import AdminDashboard from "../pages/admin/Dashboard";
-import Users from "../pages/admin/Users";
-import Drivers from "../pages/admin/Drivers";
-import Bookings from "../pages/admin/Bookings";
-import Reports from "../pages/admin/Reports";
-*/}
-
-function AppRoutes() {
+export default function AppRoutes() {
   return (
-    <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
 
-      {/* Public Routes */}
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register/passenger" element={<PassengerRegister />} />
-        <Route path="/register/driver" element={<DriverRegister />} />
-        <Route path="/verify-otp" element={<VerifyOTP />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/register/admin" element={<AdminRegister />} />
-      </Route>
+          {/* Public Routes */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/register/passenger"
+              element={<PassengerRegister />}
+            />
+            <Route
+              path="/register/driver"
+              element={<DriverRegister />}
+            />
+            <Route
+              path="/register/admin"
+              element={<AdminRegister />}
+            />
+            <Route
+              path="/forgot-password"
+              element={<ForgotPassword />}
+            />
+            <Route
+              path="/reset-password"
+              element={<ResetPassword />}
+            />
+          </Route>
 
-      {/* Passenger Routes */}
-      <Route
-        path="/passenger"
-        element={
-          <PrivateRoute>
-            <RoleRoute role="PASSENGER">
-              <PassengerLayout />
-            </RoleRoute>
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<PassengerDashboard />} />
-        <Route path="book-ride" element={<BookRide />} />
-        <Route path="ride-history" element={<PassengerRideHistory />} />
-        <Route path="profile" element={<PassengerProfile />} />
-        <Route path="payment" element={<Payment />} />
-      </Route>
+          {/* Admin Routes */}
+          <Route element={<PrivateRoute />}>
+            <Route element={<RoleRoute allowedRoles={["ADMIN"]} />}>
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route
+                  path="dashboard"
+                  element={<AdminDashboard />}
+                />
 
-      {/* Driver Routes */}
-      <Route
-        path="/driver"
-        element={
-          <PrivateRoute>
-            <RoleRoute role="DRIVER">
-              <DriverLayout />
-            </RoleRoute>
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<DriverDashboard />} />
-        <Route path="dashboard" element={<DriverDashboard />} />
-        <Route path="ride-requests" element={<RideRequests />} />
-        <Route path="current-ride" element={<CurrentRide />} />
-        <Route path="ride-history" element={<DriverRideHistory />} />
-        <Route path="earnings" element={<Earnings />} />
-        <Route path="profile" element={<DriverProfile />} />
-        <Route path="vehicle-details" element={<VehicleDetails />} />
-        <Route path="availability" element={<Availability />} />
-        <Route path="map" element={<DriverMap />} />
-        <Route path="/driver/history" element={<RideHistoryPage />} />
-      </Route>
+                <Route path="users" element={<UserList />} />
+                <Route path="drivers" element={<DriverList />} />
+                <Route path="bookings" element={<BookingList />} />
 
-      {/* Admin Routes 
-      <Route
-        path="/admin"
-        element={
-          <PrivateRoute>
-            <RoleRoute role="ADMIN">
-              <AdminLayout />
-            </RoleRoute>
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<AdminDashboard />} />
-        <Route path="users" element={<Users />} />
-        <Route path="drivers" element={<Drivers />} />
-        <Route path="bookings" element={<Bookings />} />
-        <Route path="reports" element={<Reports />} />
-      </Route>
-      */}
-   
+                <Route
+                  path="reports/bookings"
+                  element={<BookingReport />}
+                />
+                <Route
+                  path="reports/revenue"
+                  element={<RevenueReport />}
+                />
+                <Route
+                  path="reports/drivers"
+                  element={<DriverReport />}
+                />
+                <Route
+                  path="reports/passengers"
+                  element={<PassengerReport />}
+                />
+              </Route>
+            </Route>
+          </Route>
 
-      {/* 404 */}
-      <Route path="*" element={<NotFound />} />
+          {/* Driver Routes */}
+          <Route element={<PrivateRoute />}>
+            <Route element={<RoleRoute allowedRoles={["DRIVER"]} />}>
+              <Route path="/driver" element={<DriverLayout />}>
+                <Route index element={<DriverDashboard />} />
+                <Route
+                  path="dashboard"
+                  element={<DriverDashboard />}
+                />
+                <Route
+                  path="profile"
+                  element={<DriverProfile />}
+                />
+                <Route
+                  path="vehicle"
+                  element={<Vehicle />}
+                />
+                <Route
+                  path="location"
+                  element={<Location />}
+                />
+                <Route
+                  path="assigned-ride"
+                  element={<AssignedRide />}
+                />
+              </Route>
+            </Route>
+          </Route>
 
-    </Routes>
+          {/* Passenger Routes */}
+          <Route element={<PrivateRoute />}>
+            <Route element={<RoleRoute allowedRoles={["PASSENGER"]} />}>
+              <Route path="/passenger" element={<PassengerLayout />}>
+                <Route index element={<PassengerDashboard />} />
+                <Route
+                  path="dashboard"
+                  element={<PassengerDashboard />}
+                />
+                <Route
+                  path="book-ride"
+                  element={<BookRide />}
+                />
+                <Route
+                  path="ride-history"
+                  element={<RideHistory />}
+                />
+                <Route
+                  path="profile"
+                  element={<Profile />}
+                />
+                <Route
+                  path="payment"
+                  element={<Payment />}
+                />
+                <Route
+                  path="rating"
+                  element={<Rating />}
+                />
+              </Route>
+            </Route>
+          </Route>
+
+          {/* <Route path="*" element={<NotFound />} /> */}
+
+        </Routes>
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnHover
+          draggable
+          theme="light"
+        />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
-
-export default AppRoutes;

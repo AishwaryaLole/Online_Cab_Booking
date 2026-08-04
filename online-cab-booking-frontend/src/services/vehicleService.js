@@ -1,39 +1,28 @@
-import axios from "axios";
+import api from "../api/api";
 
-
-const API = axios.create({
-  baseURL:"http://localhost:8080/api",
-});
-
-
-API.interceptors.request.use((config)=>{
-
-  const token = localStorage.getItem("token");
-
-  if(token){
-    config.headers.Authorization = 
-    `Bearer ${token}`;
+export const getVehicleByDriverId = async (driverId) => {
+  try {
+    const res = await api.get(`/vehicles/driver/${driverId}`);
+    return { success: true, data: res.data.data };
+  } catch (error) {
+    return { success: false, message: error.response?.data?.message || "No vehicle found" };
   }
-
-  return config;
-
-});
-
-
-
-export const getVehicleDetails = () => {
-
-  return API.get("/vehicles/driver");
-
 };
 
+export const addVehicle = async (data) => {
+  try {
+    const res = await api.post(`/vehicles`, data);
+    return { success: true, data: res.data.data, message: res.data.message };
+  } catch (error) {
+    return { success: false, message: error.response?.data?.message || "Failed to add vehicle" };
+  }
+};
 
-
-export const updateVehicleDetails = (data) => {
-
-  return API.put(
-    "/vehicles/update",
-    data
-  );
-
+export const updateVehicle = async (vehicleId, data) => {
+  try {
+    const res = await api.put(`/vehicles/${vehicleId}`, data);
+    return { success: true, data: res.data.data, message: res.data.message };
+  } catch (error) {
+    return { success: false, message: error.response?.data?.message || "Failed to update vehicle" };
+  }
 };

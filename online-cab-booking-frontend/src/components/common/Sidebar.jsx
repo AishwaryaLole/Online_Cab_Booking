@@ -9,17 +9,20 @@ import {
   Users,
   ClipboardList,
   FileBarChart2,
-  LogOut,
+  IndianRupee,
+  MapPin,
+  LogOut
 } from "lucide-react";
 
-import { useAuth } from "../../hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
 
 function Sidebar() {
+<<<<<<< HEAD
   const { user, logout } = useAuth();
+=======
 
   const location = useLocation();
 
-  const menus = {
     PASSENGER: [
       {
         title: "Dashboard",
@@ -49,6 +52,7 @@ function Sidebar() {
     ],
 
     DRIVER: [
+<<<<<<< HEAD
   {
     title: "Dashboard",
     path: "/driver",
@@ -112,9 +116,26 @@ function Sidebar() {
         icon: FileBarChart2,
       },
     ],
+=======
+      { title: "Dashboard", path: "/driver/dashboard", icon: LayoutDashboard },
+      { title: "Assigned Ride", path: "/driver/assigned-ride", icon: CarTaxiFront },
+      { title: "Vehicle", path: "/driver/vehicle", icon: Car },
+      { title: "Location", path: "/driver/location", icon: MapPin },
+      { title: "Profile", path: "/driver/profile", icon: User },
+    ],
+
+    ADMIN: [
+      { title: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
+      { title: "Users", path: "/admin/users", icon: Users },
+      { title: "Drivers", path: "/admin/drivers", icon: Car },
+      { title: "Bookings", path: "/admin/bookings", icon: ClipboardList },
+      { title: "Reports", path: "/admin/reports/bookings", icon: FileBarChart2 },
+    ]
+
+>>>>>>> 0a0591cd9d2f2167ec45a18eb85026850bf6a8e9
   };
 
-  const menu = menus[user?.role] || [];
+  const menu = menus[role] || [];
 
   return (
     <aside className="w-72 min-h-screen bg-white border-r shadow-lg flex flex-col">

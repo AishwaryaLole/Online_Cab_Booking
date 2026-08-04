@@ -28,6 +28,17 @@ public interface RideService {
 	//Complete the ride
 	RideResponseDTO completeRide(Long id);
 	
+	List<RideResponseDTO> getAssignedRides(Long driverId);
 	
+	RideResponseDTO acceptRide(Long id);
+	
+	RideResponseDTO rejectRide(Long id);
+	
+	List<RideResponseDTO> getRideHistoryByDriver(Long driverId);
+
+	// Called by PaymentServiceImpl right after a UPI/Card prepayment succeeds -
+	// this is the moment a PAYMENT_PENDING ride actually gets matched to a
+	// nearby driver.
+	RideResponseDTO assignNearestDriverAfterPayment(Long rideId);
 
 }
