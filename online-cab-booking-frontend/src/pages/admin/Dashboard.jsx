@@ -101,12 +101,12 @@ const Dashboard = () => {
           color="bg-yellow-500"
         />
 
-        <StatCard
-          title="Total Revenue"
-          value={`₹ ${stats.totalRevenue}`}
-          icon={<IndianRupee  size={28} />}
-          color="bg-purple-500"
-        />
+       <StatCard
+  title="Total Revenue"
+  value={`₹ ${Number(stats.totalRevenue || 0).toFixed(1)}`}
+  icon={<IndianRupee  size={28} />}
+  color="bg-purple-500"
+/>
       </div>
 
       {/* Summary Widgets */}

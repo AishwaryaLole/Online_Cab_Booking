@@ -8,6 +8,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-white">
 
+
       <section className="max-w-7xl mx-auto px-8 py-16 grid md:grid-cols-2 gap-12 items-center">
         {/* Left side: text content */}
         <div>
@@ -116,6 +117,7 @@ export default function Landing() {
 
          <Features />
       <Testimonials />
+
 
     </div>
   );

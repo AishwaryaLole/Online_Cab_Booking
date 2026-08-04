@@ -27,10 +27,14 @@ export function AuthProvider({ children }) {
       setEmail(loginEmail);
       setRole(res.role);
       setName(res.name);
+      setUserId(res.userId);
       setTokenState(res.token);
       setEmailState(loginEmail);
       setRoleState(res.role);
       setNameState(res.name);
+
+      setUserIdState(res.userId);
+
 
       // The login response doesn't include the user id, so resolve it
       // separately using the email the user just logged in with.
@@ -43,6 +47,7 @@ export function AuthProvider({ children }) {
       } catch (err) {
         console.error("Could not resolve user id after login:", err);
       }
+
     }
 
     return res;
@@ -57,6 +62,8 @@ export function AuthProvider({ children }) {
     setUserIdState(null);
   }, []);
 
+
+
   const value = {
     token,
     email,
@@ -67,6 +74,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
   };
+
 
   return (
     <AuthContext.Provider value={value}>
