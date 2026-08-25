@@ -10,7 +10,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Hi! Ask me anythink.." },
+    { from: "bot", text: "Hi! Ask me anything.." },
   ]);
   const bottomRef = useRef(null);
 
