@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthServices {
 	private final DriverRepository driverRepository;
 	
 	
-	private String licenseNumber;
+	
 	
 	private String generateOtp() {
 		
@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthServices {
 		
 	}
 	
-	@Transactional
+	
 	@Override
 	public String register(RegisterRequest request) {
 		
@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthServices {
 
 	    	Driver driver = new Driver();
 
-	    	driver.setUser(user);
+	    	driver.setUser(savedUser);
 	    	driver.setLicenseNumber(request.getLicenseNumber());
 	    	driver.setStatus(DriverStatus.OFFLINE);
 	    	driver.setAvailability(false);
@@ -86,18 +86,20 @@ public class AuthServiceImpl implements AuthServices {
 	    
 	    otpVerificationRepository.deleteAllByEmail(user.getEmail());
 
+		String otp = generateOtp();
+
 	    OtpVerification otpVerification = new OtpVerification();
 
-	    String otp = generateOtp();
+	    
 
-	    otpVerification.setEmail(user.getEmail());
-	    otpVerification.setOtp(otp);
+	   otpVerification.setEmail(user.getEmail());
+       otpVerification.setOtp(otp);
+       otpVerification.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+       otpVerification.setVerified(false);
 
-	    emailService.sendOtp(user.getEmail(), otp);
-	    otpVerification.setExpiryTime(LocalDateTime.now().plusMinutes(5));
-	    otpVerification.setVerified(false);
+       otpVerificationRepository.save(otpVerification);
 
-	    otpVerificationRepository.save(otpVerification);
+       emailService.sendOtp(user.getEmail(), otp);
 
 	    return "User Register Successfully";
 	}
