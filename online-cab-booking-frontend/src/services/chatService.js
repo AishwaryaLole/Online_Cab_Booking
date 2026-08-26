@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const AI_BASE_URL = "http://localhost:8000";
+const AI_BASE_URL = "https://cab-booking-ai.onrender.com";
 
 export const sendChatMessage = async (message, userId, role, token) => {
   try {

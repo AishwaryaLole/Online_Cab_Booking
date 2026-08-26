@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080/api/api";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Book Ride
 export const bookRide = async (rideData) => {
@@ -50,14 +50,14 @@ export const makePayment = async (paymentData) => {
 // Submit Rating
 export const submitRating = async (ratingData) => {
   const response = await axios.post(
-    "http://localhost:8080/ratings",
+    `${import.meta.env.VITE_API_BASE_URL.replace("/api", "")}/ratings`,
     ratingData
   );
 
   return response.data;
 };
 
-const API_URL = "http://localhost:8080/api/passenger";
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/passenger`;
 
 
 const getPassengerProfile = async () => {
