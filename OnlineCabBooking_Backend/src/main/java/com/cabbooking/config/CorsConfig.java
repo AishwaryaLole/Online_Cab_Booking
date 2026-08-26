@@ -16,9 +16,10 @@ public class CorsConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:*"
-        ));
+       configuration.setAllowedOriginPatterns(List.of(
+        "http://localhost:*",
+        "https://online-cab-booking-frontend.onrender.com"
+));
 
         configuration.setAllowedMethods(List.of(
                 "GET",
