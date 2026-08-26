@@ -1,3 +1,4 @@
+
 package com.cabbooking.services;
 
 import org.springframework.mail.SimpleMailMessage;
@@ -10,33 +11,30 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-	private final JavaMailSender mailSender;
-	
-	@Override
-	public void sendOtp(String toEmail, String otp) {
-	
-		
-		 SimpleMailMessage message = new SimpleMailMessage();
+    private final JavaMailSender mailSender;
 
-	        message.setTo(toEmail);
-	        message.setSubject("Online Cab Booking - OTP Verification");
-	        message.setText("Your OTP is: " + otp);
+    @Override
+    public void sendOtp(String toEmail, String otp) {
 
-	        mailSender.send(message);
+        SimpleMailMessage message = new SimpleMailMessage();
 
-	}
+        message.setTo(toEmail);
+        message.setSubject("Online Cab Booking - OTP Verification");
+        message.setText("Your OTP is: " + otp);
 
-	@Override
-	public void sendEmail(String to, String subject, String message) {
-		
-		 SimpleMailMessage mail = new SimpleMailMessage();
+        mailSender.send(message);
+    }
 
-	        mail.setTo(to);
-	        mail.setSubject(subject);
-	        mail.setText(message);
+    @Override
+    public void sendEmail(String to, String subject, String message) {
 
-	        mailSender.send(mail);
-		
-	}
+        SimpleMailMessage mail = new SimpleMailMessage();
 
+        mail.setTo(to);
+        mail.setSubject(subject);
+        mail.setText(message);
+
+        mailSender.send(mail);
+    }
 }
+

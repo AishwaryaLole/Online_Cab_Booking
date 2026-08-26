@@ -2,7 +2,7 @@ package com.cabbooking.services;
 
 import java.time.LocalDateTime;
 
-import java.util.Optional;
+
 
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +24,6 @@ import com.cabbooking.repository.OtpVerificationRepository;
 import com.cabbooking.repository.UserRepository;
 import com.cabbooking.entities.Driver;
 import com.cabbooking.enums.DriverStatus;
-import com.cabbooking.repository.DriverRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,7 +48,7 @@ public class AuthServiceImpl implements AuthServices {
 		
 	}
 	
-	
+	@Transactional
 	@Override
 	public String register(RegisterRequest request) {
 		
@@ -104,6 +103,7 @@ public class AuthServiceImpl implements AuthServices {
 	    return "User Register Successfully";
 	}
 
+	@Transactional
 	@Override
 	public String verifyOtp(VerifyOtpRequest request) {
 		
@@ -235,6 +235,7 @@ public class AuthServiceImpl implements AuthServices {
 	    return "Password reset successfully";
 	}
 
+	@Transactional
 	@Override
 	public String resendOtp(EmailRequest request) {
 
